@@ -1,0 +1,41 @@
+<h1>STATS</h1>
+
+<!--<table border="1">
+<tr>
+<td>row 1, cell 1</td>
+<td>row 1, cell 2</td>
+</tr>
+<tr>
+<td>row 2, cell 1</td>
+<td>row 2, cell 2</td>
+</tr>
+</table>-->
+
+<table border="1">
+  <tr>
+    <th>Platform</th>
+    <th>Type</th>
+    <th>Price</th>
+    <th>Total Sold</th>
+    <th>Gross Revenue</th>
+  </tr>
+  <% @total_count, @total_gross_revenue = 0, 0 %>
+  <% @stats.each do |s| %>
+    <tr>
+      <td><%= s[:platform] %></td>
+      <td><%= s[:type] %></td>
+      <td><%= s[:price] %></td>
+      <td><%= number_with_delimiter(s[:count]) %></td>
+      <td><%= number_to_currency(s[:revenue]) %></td>
+      <% @total_count += s[:count] %>
+      <% @total_gross_revenue += s[:revenue] %>
+    </tr>
+  <% end %>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td><%= number_with_delimiter(@total_count) %></td>
+    <td><%= number_to_currency(@total_gross_revenue) %></td>
+  </tr>
+</table>

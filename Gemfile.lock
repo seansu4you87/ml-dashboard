@@ -73,6 +73,7 @@ GEM
     figaro (0.5.0)
       rails (~> 3.0)
     hike (1.2.1)
+    hirb (0.7.0)
     hub (1.10.3)
     i18n (0.6.1)
     journey (1.0.4)
@@ -91,6 +92,7 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.19)
     multi_json (1.5.0)
+    mysql2 (0.3.11)
     nokogiri (1.5.6)
     polyglot (0.3.3)
     rack (1.4.1)
@@ -179,8 +181,10 @@ DEPENDENCIES
   email_spec (>= 1.4.0)
   factory_girl_rails (>= 4.1.0)
   figaro (>= 0.5.0)
+  hirb
   hub (>= 1.10.2)
   jquery-rails
+  mysql2
   rails (= 3.2.9)
   rspec-rails (>= 2.11.4)
   sass-rails (~> 3.2.3)
