@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.9'
-gem 'sqlite3'
 gem 'jquery-rails'
 gem "thin", ">= 1.5.0"
 gem "bootstrap-sass", ">= 2.2.2.0"
@@ -19,6 +18,7 @@ group :assets do
 end
 
 group :development do
+  gem 'sqlite3'
   gem "better_errors", ">= 0.3.2"
   gem "binding_of_caller", ">= 0.6.8"
   gem "hub", ">= 1.10.2", :require => nil
