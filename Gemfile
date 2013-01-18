@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '3.2.9'
 gem 'jquery-rails'
-gem "thin", ">= 1.5.0"
+gem "thin"
 gem "bootstrap-sass", ">= 2.2.2.0"
 gem "simple_form", ">= 2.0.4"
 gem "figaro", ">= 0.5.0"
@@ -32,4 +32,8 @@ group :test do
   gem "database_cleaner", ">= 0.9.1"
   gem "capybara", ">= 2.0.1"
   gem "rspec-rails", ">= 2.11.4"
+end
+
+group :production do
+  gem "pg"
 end
