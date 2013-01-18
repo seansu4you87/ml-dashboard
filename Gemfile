@@ -9,6 +9,8 @@ gem "simple_form", ">= 2.0.4"
 gem "figaro", ">= 0.5.0"
 gem 'mysql2'
 gem 'hirb'
+gem 'devise'
+gem 'newrelic_rpm'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
