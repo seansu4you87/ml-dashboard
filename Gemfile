@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '1.9.3'
 
-gem 'rails', '3.2.9'
+gem 'rails', '3.2.11'
 gem 'jquery-rails'
 gem "thin"
 gem "bootstrap-sass", ">= 2.2.2.0"
