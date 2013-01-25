@@ -12,6 +12,10 @@ gem 'mysql2'
 gem 'hirb'
 gem 'devise'
 gem 'newrelic_rpm'
+gem "angular-rails"
+gem "rabl"
+gem "oj"
+gem 'tire'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'

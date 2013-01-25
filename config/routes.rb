@@ -4,4 +4,6 @@ MobileLearnDashboard::Application.routes.draw do
 
   root to: 'home#index'
 
+  get "/products" => "home#products"
+
 end

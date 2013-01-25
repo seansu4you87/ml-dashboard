@@ -1,15 +1,13 @@
-<h1>STATS</h1>
-
-<!--<table border="1">
-<tr>
-<td>row 1, cell 1</td>
-<td>row 1, cell 2</td>
-</tr>
-<tr>
-<td>row 2, cell 1</td>
-<td>row 2, cell 2</td>
-</tr>
-</table>-->
+<div ng-controller="purchaseController">
+  <h1>Google Phone Gallery: {{query}}</h1>
+  Search: <input ng-model="query">
+  <ul class="phones">
+    <li ng-repeat="phone in phones | filter:query">
+      {{phone.name}}
+      <p>{{phone.snippet}}</p>
+    </li>
+  </ul>
+</div>
 
 <table border="1">
   <tr>
