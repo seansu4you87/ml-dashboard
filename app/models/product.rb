@@ -1,4 +1,7 @@
 class Product < ActiveRecord::Base
+  include Tire::Model::Search
+  include Tire::Model::Callbacks
+  
   establish_connection(Rails.configuration.database_configuration['mlcs_production'])
   set_table_name 'iapproduct'
 

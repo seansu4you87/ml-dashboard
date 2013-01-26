@@ -8,8 +8,8 @@ class HomeController < ApplicationController
     # @stats << ProductsHelper.stats_from_products(Product.android_yearlies)
   end
 
-  def products
-    @products = Product.ios_yearlies
+  def purchases
+    @purchases = Purchase.search(params)
   end
 
 end

@@ -12,10 +12,12 @@ gem 'mysql2'
 gem 'hirb'
 gem 'devise'
 gem 'newrelic_rpm'
-gem "angular-rails"
+gem "angular-rails" 
 gem "rabl"
 gem "oj"
-gem 'tire'
+gem 'tire' # elasticsearch -f -D es.config=/usr/local/opt/elasticsearch/config/elasticsearch.yml
+gem 'will_paginate'
+gem 'slim'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
