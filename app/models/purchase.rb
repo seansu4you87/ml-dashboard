@@ -16,7 +16,7 @@ class Purchase < ActiveRecord::Base
 
   def self.search(params)
     # tire.search(load: true) do
-    tire.search(page: params[:page], per_page: 10) do
+    tire.search(page: params[:page], per_page: 10000) do
       query { string params[:q] } if params[:q].present?
       # query { string "android" }
       # query { all }
