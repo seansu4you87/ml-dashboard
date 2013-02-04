@@ -1,16 +1,27 @@
-function purchaseController($scope) {
-  $scope.phones = [
-    {"name": "Nexus S",
-     "snippet": "Fast just got faster with Nexus S."},
-    {"name": "Motorola XOOM™ with Wi-Fi",
-     "snippet": "The Next, Next Generation tablet."},
-    {"name": "MOTOROLA XOOM™",
-     "snippet": "The Next, Next Generation tablet."},
-    {"name": "iPhone 5",
-     "snippet": "Best Phone in the world hands down"}
-  ];
+function purchaseController($scope, $http) {
+  
+  $scope.success = "Waiting"
 
-  $scope.hello = "Hello, World!"
-  $scope.test = { "title": "hello",
-                  "body": "my name is sean"}
+  $scope.getPurchaseData = function () {
+
+    $http({
+      method: 'GET',
+      url: 'http://localhost:3000/purchases.json'
+    }).
+    success(function (data) {
+
+      $scope.data = data
+      $scope.success = "Yes"
+
+    }).
+    error(function (data, status) {
+
+      $scope.success = "No"
+      $scope.error = status
+
+    });
+  };
+
+  $scope.getPurchaseData();
+
 }

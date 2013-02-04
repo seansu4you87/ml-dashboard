@@ -18,5 +18,4 @@
 // require angle-up
 //= require_tree ./angular
 
-var MLDashboard = {};
-var App = angular.module('MLDashboard', ['ngResource']);
+var MLDashboardApp = angular.module('MLDashboard', ['ngResource']);

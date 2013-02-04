@@ -1,39 +1,8 @@
 <div ng-controller="purchaseController">
-  <h1>Google Phone Gallery: {{query}}</h1>
-  Search: <input ng-model="query">
-  <ul class="phones">
-    <li ng-repeat="phone in phones | filter:query">
-      {{phone.name}}
-      <p>{{phone.snippet}}</p>
-    </li>
-  </ul>
-</div>
+  
+  <h1>Got Data: {{success}}</h1>
+  <p>Errors: {{error}}</p>
 
-<table border="1">
-  <tr>
-    <th>Platform</th>
-    <th>Type</th>
-    <th>Price</th>
-    <th>Total Sold</th>
-    <th>Gross Revenue</th>
-  </tr>
-  <% @total_count, @total_gross_revenue = 0, 0 %>
-  <% @stats.each do |s| %>
-    <tr>
-      <td><%= s[:platform] %></td>
-      <td><%= s[:type] %></td>
-      <td><%= s[:price] %></td>
-      <td><%= number_with_delimiter(s[:count]) %></td>
-      <td><%= number_to_currency(s[:revenue]) %></td>
-      <% @total_count += s[:count] %>
-      <% @total_gross_revenue += s[:revenue] %>
-    </tr>
-  <% end %>
-  <tr>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td><%= number_with_delimiter(@total_count) %></td>
-    <td><%= number_to_currency(@total_gross_revenue) %></td>
-  </tr>
-</table>
+  <h2>Data</h2>
+  <p>{{data}}</p>
+</div>
