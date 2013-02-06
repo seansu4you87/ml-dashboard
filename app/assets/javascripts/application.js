@@ -14,6 +14,7 @@
 //= require jquery_ujs
 //= require bootstrap
 //= require angular.min
+//= require angular-resource.min
 // require angle-up
 //= require_tree ./angular
 //= require_tree .

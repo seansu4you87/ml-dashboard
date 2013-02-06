@@ -1,4 +1,4 @@
-angular.module 'MLDashboard', []
+MLDashboard = angular.module 'MLDashboard', []
 
 
 class Purchase
@@ -54,7 +54,6 @@ class PurchaseController
         console.log "got purchase data!"
         $scope.data = $scope.analyzePurchaseData(data)
         console.log $scope.data
-        fjaoewijf
         $scope.success = "Yes"
 
         $scope.page += 1
@@ -129,7 +128,7 @@ class PurchaseController
 
 @PurchaseController = PurchaseController
 
-angular.module('MLDashboard', []).directive('myDir', ->
+MLDashboard.directive('myDir', ->
   margin = 20
   width = 960
   height = 500 - 0.5 - margin
