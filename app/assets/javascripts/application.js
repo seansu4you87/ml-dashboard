@@ -16,7 +16,6 @@
 //= require angular.min
 //= require angular-resource.min
 // require angle-up
+//= require ./angular/mldashboard
 //= require_tree ./angular
 //= require_tree .
-
-// var MLDashboardApp = angular.module('MLDashboard', ['ngResource']);

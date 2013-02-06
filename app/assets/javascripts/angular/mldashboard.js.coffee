@@ -1,2 +1,2 @@
-# MLDashboard = angular.module "MLDashboard", ['ngResource']
-# (exports ? this).MLDashboard = MLDashboard
+MLDashboard = angular.module "MLDashboard", []
+(exports ? this).MLDashboard = MLDashboard
