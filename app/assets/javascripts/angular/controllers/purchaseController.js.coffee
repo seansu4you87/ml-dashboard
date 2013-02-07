@@ -55,22 +55,33 @@ class PurchaseController
     @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate())
     @$scope.bucketLength = 7 #days
 
+    @$scope.data = []
+    for productName in Product.productArray
+      @$scope.data.push @yearOfWeekBuckets(productName)
+
+    for productArray in @$scope.data
+      i = 0
+      for bucket in productArray
+        bucket.x = i
+        bucket.y = bucket.purchases.length
+        i++
+
     @getPurchaseData()
 
   getPurchaseData: (page = 1) ->
-    console.log "getting page #{page}"
+    # console.log "getting page #{page}"
     @$http(
       method: 'GET'
       url:    "http://localhost:3000/purchases.json?page=#{page}"
     ).
     success((data) =>
-      console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
+      # console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
       @$scope.data = @analyzePurchaseData(data)
-      console.log @$scope.data
+      # console.log @$scope.data
       @$scope.success = "Yes"
 
       @$scope.page += 1
-      if data.length and page < 1
+      if data.length and @$scope.page <= 2
         @getPurchaseData(@$scope.page)
     ).
     error((data, status) ->
@@ -98,7 +109,9 @@ class PurchaseController
 
     @$scope.purchaseCount = @$scope.purchases.length
 
+    
     # format data
+    realData = @$scope.data
     realData = []
     for productName in Product.productArray
       realData.push @yearOfWeekBuckets(productName)
@@ -112,7 +125,7 @@ class PurchaseController
           continue
       properBucket.purchases.push purchase
 
-    console.log realData
+    # console.log realData
 
     for productArray in realData
       i = 0

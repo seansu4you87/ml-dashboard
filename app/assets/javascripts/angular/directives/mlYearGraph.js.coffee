@@ -11,12 +11,17 @@ MLDashboard.directive('mlYearGraph', ->
     grouped: "="
   link: (scope, element, attrs) ->
 
+    console.log "linking"
+    console.log scope.val
+
     vis = d3.select(element[0])
               .append("svg")
                 .attr("width", width)
                 .attr("height", height + margin + 100)
 
     scope.$watch 'val', (newVal, oldVal) ->
+      console.log "watching val"
+
       vis.selectAll('*').remove();
 
       return unless newVal
