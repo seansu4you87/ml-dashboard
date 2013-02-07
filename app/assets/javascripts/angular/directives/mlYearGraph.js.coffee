@@ -1,4 +1,4 @@
-MLDashboard.directive('myDir', ->
+MLDashboard.directive('mlYearGraph', ->
   margin = 20
   width = 960
   height = 500 - 0.5 - margin

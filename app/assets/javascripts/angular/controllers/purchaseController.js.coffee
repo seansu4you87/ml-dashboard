@@ -4,6 +4,8 @@ class Purchase
     @version = json.version
     @date = new Date(json.modified)
 
+
+
 class Product
   @productArray = ["ios_yearly", "ios_unlimited", "android_yearly", "android_unlimited"]
   
@@ -26,6 +28,8 @@ class Product
           return "android_unlimited"
     "unknown"
 
+
+
 class TimeBucket
   constructor: (startDate, endDate, product) ->
     @startDate = startDate
@@ -33,10 +37,12 @@ class TimeBucket
     @product = product
     @purchases = []
 
+
+
 class PurchaseController
   constructor: (@$scope, @$http) ->
     @$scope.success = "Waiting"
-    
+
     @$scope.ios_yearly = 0
     @$scope.ios_unlimited = 0
     @$scope.android_yearly = 0
@@ -44,6 +50,10 @@ class PurchaseController
     
     @$scope.page = 1
     @$scope.purchases = []
+
+    @$scope.endDate = new Date()
+    @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate())
+    @$scope.bucketLength = 7 #days
 
     @getPurchaseData()
 
@@ -88,56 +98,19 @@ class PurchaseController
 
     @$scope.purchaseCount = @$scope.purchases.length
 
-    # created formatted data
-    purchases = @$scope.purchases
-    purchases.sort (a, b) -> 
-      if a.date > b.date
-        return -1
-      else 
-        return 1
-
-    date0 = purchases[purchases.length - 1].date
-    dateN = purchases[0].date
-
-    days = Math.floor((dateN - date0) / 86400000) + 1
-
-    products = Product.productArray
-
-    formattedData = []
-    formattedData.length = products.length
-    for i in [0...formattedData.length] by 1
-      formattedData[i] = []
-      formattedData[i].length = days
-      for j in [0...formattedData[i].length] by 1
-        formattedData[i][j] = 
-          x: j,
-          y: 0
-
-    for purchase in purchases
-      date = purchase.date
-      curDay = Math.floor (date - date0) / 86400000
-      formattedData[purchase.product.index][curDay].y += 1
-      formattedData[0][curDay].date = date.getUTCMonth() + "/" + date.getUTCDate()
-
-    formattedData[0][0].product = "ios_yearly"
-    formattedData[1][0].product = "ios_unlimited"
-    formattedData[2][0].product = "android_yearly"
-    formattedData[3][0].product = "android_unlimited"
-
-    # new formatted data method
+    # format data
     realData = []
-    realData.length = products.length
-    for i in [0...realData.length] by 1
-      realData[i] = @yearOfWeekBuckets()
+    for productName in Product.productArray
+      realData.push @yearOfWeekBuckets(productName)
 
-    for purchase in purchases
-      date0 = realData[0][0].startDate
+    for purchase in @$scope.purchases
       date = purchase.date
-      week = Math.floor (date - date0) / (1000 * 60 * 60 * 24 * 7)
-      bucket = realData[purchase.product.index][week]
-      bucket.product = purchase.product if bucket.product == null
-      bucket.purchases.push purchase
-      # console.log "#{date} is in week #{week}: #{realData[0][week].startDate} to #{realData[0][week].endDate}"
+      properBucket = null
+      for bucket in realData[purchase.product.index]
+        if date >= bucket.startDate and date < bucket.endDate
+          properBucket = bucket
+          continue
+      properBucket.purchases.push purchase
 
     console.log realData
 
@@ -150,30 +123,20 @@ class PurchaseController
 
     return realData
 
-    # return
-    return formattedData
+  yearOfWeekBuckets: (product = null) ->
+    endDate = new Date(@$scope.endDate)
+    startDate = new Date(@$scope.startDate)
 
-  yearOfWeekBuckets: ->
-    endDate = new Date()
-    startDate = new Date(endDate.getFullYear() - 1, endDate.getMonth(), endDate.getDate())
-    currentDate = startDate
-
-    console.log (endDate - startDate)/(1000 * 60 * 60 * 24 * 365.25)
-
-    i = 0
     buckets = []
-    createBucket = ->
+    currentDate = startDate
+    createBucket = =>
       startOfWeekDate = new Date(currentDate.getTime())
-      currentDate.setDate(currentDate.getDate() + 7)
+      currentDate.setDate(currentDate.getDate() + @$scope.bucketLength)
       endOfWeekDate = new Date(currentDate - 1000)
-      bucket = new TimeBucket(startOfWeekDate, endOfWeekDate, null)
+      bucket = new TimeBucket(startOfWeekDate, endOfWeekDate, product)
       buckets.push bucket
-      # console.log "Week #{i}: #{bucket}"
-      # console.log "Week #{i}: #{startOfWeekDate} to #{endOfWeekDate}"
-      i++
 
     createBucket() while currentDate <= endDate
-    # console.log buckets
     buckets
       
 
