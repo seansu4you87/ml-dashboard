@@ -69,15 +69,15 @@ class PurchaseController
     @getPurchaseData()
 
   getPurchaseData: (page = 1) ->
-    # console.log "getting page #{page}"
+    console.log "getting page #{page}"
     @$http(
       method: 'GET'
       url:    "http://localhost:3000/purchases.json?page=#{page}"
     ).
     success((data) =>
-      # console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
+      console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
       @$scope.data = @analyzePurchaseData(data)
-      # console.log @$scope.data
+      console.log @$scope.data
       @$scope.success = "Yes"
 
       @$scope.page += 1
@@ -125,7 +125,7 @@ class PurchaseController
           continue
       properBucket.purchases.push purchase
 
-    # console.log realData
+    console.log realData
 
     for productArray in realData
       i = 0

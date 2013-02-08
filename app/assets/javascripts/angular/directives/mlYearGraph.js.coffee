@@ -14,97 +14,114 @@ MLDashboard.directive('mlYearGraph', ->
     console.log "linking"
     console.log scope.val
 
+    n = scope.val.length
+    m = scope.val[0].length
+    data = d3.layout.stack()(scope.val)
+
+    mx = m
+    my = d3.max data, (d) -> 
+      d3.max d, (d) ->
+        d.y0 + d.y
+    mz = d3.max data, (d) ->
+      d3.max d, (d) ->
+        d.y
+
+    x  = (d) -> d.x * width / mx
+    y0 = (d) -> 
+      return 0 if my == 0
+      height - d.y0 * height / my
+    y1 = (d) -> 
+      return 0 if my == 0
+      height - (d.y + d.y0) * height / my
+    y2 = (d) -> d.y * height / mz
+
     vis = d3.select(element[0])
               .append("svg")
                 .attr("width", width)
                 .attr("height", height + margin + 100)
 
-    scope.$watch 'val', (newVal, oldVal) ->
-      console.log "watching val"
+    layers = vis.selectAll("g.layer")
+                .data(data)
+                .enter()
+                .append("g")
+                .style("fill", (d, i) ->
+                  color(i / (n - 1)))
+                .attr("class", "layer")
 
-      vis.selectAll('*').remove();
-
-      return unless newVal
-
-      n = newVal.length
-      m = newVal[0].length
-      data = d3.layout.stack()(newVal)
-
-      mx = m
-      my = d3.max data, (d) -> 
-        d3.max d, (d) ->
-          d.y0 + d.y
-      mz = d3.max data, (d) ->
-        d3.max d, (d) ->
-          d.y
-
-      x = (d) -> d.x * width / mx
-      y0 = (d) -> height - d.y0 * height / my
-      y1 = (d) -> height - (d.y + d.y0) * height / my
-      y2 = (d) -> d.y * height / mz
-
-      layers = vis.selectAll("g.layer")
-                  .data(data)
-                  .enter()
-                  .append("g")
-                  .style("fill", (d, i) ->
-                    color(i / (n - 1)))
-                  .attr("class", "layer")
-
-      bars = layers.selectAll("g.bar")
+    bars = layers.selectAll("g.bar")
                         .data((d) -> d)
                         .enter()
                         .append("g")
                         .attr("class", "bar")
                         .attr("transform", (d) -> "translate(" + x(d) + ",0)")
 
-      bars.append("rect")
-          .attr("width", x({x: 0.9}))
-          .attr("x", 0)
-          .attr("y", height)
-          .attr("height", 0)
-          .transition()
-          .delay((d, i) -> i * 10)
-          .attr("y", y1)
-          .attr("height", (d) -> y0(d) - y1(d))
+    bars.append("rect")
+        .attr("width", x({x: 0.9}))
+        .attr("x", 0)
+        .attr("y", height)
+        .attr("height", 0)
+        .transition()
+        .delay((d, i) -> i * 10)
+        .attr("y", y1)
+        .attr("height", (d) -> y0(d) - y1(d))
 
-      labels = vis.selectAll("text.label")
-                  .data(data[0])
+    labels = vis.selectAll("text.label")
+                .data(data[0])
+                .enter()
+                .append("text")
+                  .attr("class", "label")
+                  .attr("x", x)
+                  .attr("y", height + 6)
+                  .attr("dx", x({x: .45}))
+                  .attr("dy", ".71em")
+                  .attr("text-anchor", "middle")
+                  .text((d, i) -> 
+                    return if d.x % 4 != 0
+                    "#{d.startDate.getMonth() + 1}/#{d.startDate.getDate()}")
+
+    keyText = vis.selectAll("text.key")
+                  .data(data)
                   .enter()
                   .append("text")
-                    .attr("class", "label")
-                    .attr("x", x)
-                    .attr("y", height + 6)
+                    .attr("class", "key")
+                    .attr("y", (d, i) -> height  + 42 + 30 * (i%3))
+                    .attr("x", (d, i) -> 155 * Math.floor(i/3) + 15)
                     .attr("dx", x({x: .45}))
                     .attr("dy", ".71em")
-                    .attr("text-anchor", "middle")
-                    .text((d, i) -> 
-                      return if d.x % 4 != 0
-                      "#{d.startDate.getMonth() + 1}/#{d.startDate.getDate()}")
+                    .attr("text-anchor", "left")
+                    .text((d, i) -> d[0].product)
 
-      keyText = vis.selectAll("text.key")
-                    .data(data)
-                    .enter()
-                    .append("text")
-                      .attr("class", "key")
-                      .attr("y", (d, i) -> height  + 42 + 30 * (i%3))
-                      .attr("x", (d, i) -> 155 * Math.floor(i/3) + 15)
-                      .attr("dx", x({x: .45}))
-                      .attr("dy", ".71em")
-                      .attr("text-anchor", "left")
-                      .text((d, i) -> d[0].product)
+    keySwatches = vis.selectAll("rect.swatch")
+                      .data(data)
+                      .enter()
+                      .append("rect")
+                        .attr("class", "swatch")
+                        .attr("width", 20)
+                        .attr("height", 20)
+                        .style("fill", (d, i) -> color(i / (n - 1)))
+                        .attr("y", (d, i) -> height + 36 + 30 * (i%3))
+                        .attr("x", (d, i) -> 155 * Math.floor(i/3))
 
-      keySwatches = vis.selectAll("rect.swatch")
-                        .data(data)
-                        .enter()
-                        .append("rect")
-                          .attr("class", "swatch")
-                          .attr("width", 20)
-                          .attr("height", 20)
-                          .style("fill", (d, i) -> color(i / (n - 1)))
-                          .attr("y", (d, i) -> height + 36 + 30 * (i%3))
-                          .attr("x", (d, i) -> 155 * Math.floor(i/3))
+    scope.$watch 'val[0][32].purchases', (newVal, oldVal) ->
+      console.log "watching val"
+      # vis.selectAll('*').remove();
+      return unless newVal
 
+      console.log "new value!"
+
+      layers = vis.selectAll("g.layer")
+      bars = layers.selectAll("g.bar")
+                    .append("rect")
+                    .attr("width", x({x: 0.9}))
+                    .attr("x", 0)
+                    .attr("y", height)
+                    .attr("height", 0)
+                    .transition()
+                    .delay((d, i) -> i * 10)
+                    .attr("y", y1)
+                    .attr("height", (d) -> y0(d) - y1(d))
+
+      console.log bars
 
       transitionGroup = ->
         transitionEnd = ->
