@@ -55,6 +55,23 @@ class PurchaseController
     @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate())
     @$scope.bucketLength = 7 #days
 
+    @$scope.iOSYearly = true
+    @$scope.iOSUnlimited = true
+    @$scope.androidYearly = true
+    @$scope.androidUnlimited = true
+
+    @$scope.$watch 'iOSYearly', (newVal, oldVal) =>
+      @hideShowProduct(newVal, oldVal, "ios_yearly")
+
+    @$scope.$watch 'iOSUnlimited', (newVal, oldVal) =>
+      @hideShowProduct(newVal, oldVal, "ios_unlimited")
+
+    @$scope.$watch 'androidYearly', (newVal, oldVal) =>
+      @hideShowProduct(newVal, oldVal, "android_yearly")
+
+    @$scope.$watch 'androidUnlimited', (newVal, oldVal) =>
+      @hideShowProduct(newVal, oldVal, "android_unlimited")
+
     @$scope.data = []
     for productName in Product.productArray
       @$scope.data.push @yearOfWeekBuckets(productName)
@@ -68,20 +85,41 @@ class PurchaseController
 
     @getPurchaseData()
 
+  hideShowProduct: (newVal, oldVal, productName) ->
+    return if newVal == oldVal
+    height = 479.5
+
+    y = d3.scale.linear()
+          .domain([0, 10000])
+          .range([0, height])
+
+    barHeight = (d) =>
+      if newVal 
+        console.log y(@$scope.data[d.product][d.index].y)
+        return y(@$scope.data[d.product][d.index].y)
+      else
+        return 0
+
+    d3.select("g.layer##{productName}").selectAll("rect")
+      .transition()
+      .duration(500)
+      .attr("y", (d) -> height - barHeight(d))
+      .attr("height", barHeight)
+
   getPurchaseData: (page = 1) ->
-    console.log "getting page #{page}"
+    # console.log "getting page #{page}"
     @$http(
       method: 'GET'
       url:    "http://localhost:3000/purchases.json?page=#{page}"
     ).
     success((data) =>
-      console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
+      # console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
       @$scope.data = @analyzePurchaseData(data)
       # console.log @$scope.data
       @$scope.success = "Yes"
 
       @$scope.page += 1
-      if data.length and @$scope.page <= 2
+      if data.length and @$scope.page <= 1
         @getPurchaseData(@$scope.page)
     ).
     error((data, status) ->

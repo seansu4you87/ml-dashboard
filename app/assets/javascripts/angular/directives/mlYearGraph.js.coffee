@@ -1,6 +1,7 @@
 MLDashboard.directive('mlYearGraph', ->
   margin = 20
-  width = 960
+  barWidth = 20
+  width = barWidth * 60
   height = 500 - 0.5 - margin
   color = d3.interpolateRgb("#f77", "#77f")
 
@@ -14,7 +15,6 @@ MLDashboard.directive('mlYearGraph', ->
     m = scope.val[0].length
     data = d3.layout.stack()(scope.val)
 
-    barWidth = 20
     y = d3.scale.linear()
           .domain([0, 10000])
           .range([0, height])
@@ -39,6 +39,7 @@ MLDashboard.directive('mlYearGraph', ->
                 .data(placeholder)
                 .enter().append("g")
                   .attr("class", "layer")
+                  .attr("id", (d, i) -> data[i][0].product)
                   .style("fill", (d, i) -> color(i / (n - 1)))
 
     bars = groups.selectAll("rect")
@@ -55,10 +56,11 @@ MLDashboard.directive('mlYearGraph', ->
         .attr("class", "label")
         .attr("x", (d, i) -> i * barWidth)
         .attr("y", height + 6)
-        .attr("dx", barWidth)
+        .attr("dx", barWidth / 2)
         .attr("dy", ".71em")
         .attr("text-anchor", "middle")
         .text((d, i) -> 
+          return i
           return if d.x % 4 != 0
           "#{d.startDate.getMonth() + 1}/#{d.startDate.getDate()}")
     
