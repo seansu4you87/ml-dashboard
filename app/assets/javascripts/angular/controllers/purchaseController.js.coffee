@@ -77,7 +77,7 @@ class PurchaseController
     success((data) =>
       console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
       @$scope.data = @analyzePurchaseData(data)
-      console.log @$scope.data
+      # console.log @$scope.data
       @$scope.success = "Yes"
 
       @$scope.page += 1
@@ -111,7 +111,7 @@ class PurchaseController
 
     
     # format data
-    realData = @$scope.data
+    # realData = @$scope.data
     realData = []
     for productName in Product.productArray
       realData.push @yearOfWeekBuckets(productName)
@@ -125,7 +125,7 @@ class PurchaseController
           continue
       properBucket.purchases.push purchase
 
-    console.log realData
+    # console.log realData
 
     for productArray in realData
       i = 0
