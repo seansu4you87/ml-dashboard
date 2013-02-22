@@ -16,7 +16,7 @@ MLDashboard.directive('mlYearGraph', ->
     data = d3.layout.stack()(scope.val)
 
     y = d3.scale.linear()
-          .domain([0, 10000])
+          .domain([0, 40000])
           .range([0, height])
 
     i = 0

@@ -9,7 +9,8 @@ class HomeController < ApplicationController
   end
 
   def purchases
-    @purchases = Purchase.search(params)
+    # @purchases = Purchase.search(params)
+    @hours = Hour.search(params)
   end
 
 end

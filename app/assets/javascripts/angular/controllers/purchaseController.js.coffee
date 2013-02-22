@@ -37,6 +37,28 @@ class TimeBucket
     @product = product
     @purchases = []
 
+class Hour
+  constructor: (json) ->
+    @hour     = new Date(json.hour)
+    @platform = json.platform
+    @price    = (Number)(json.price)
+    @restored = json.restored
+    @count    = json.count
+
+    @productName = @deriveName()
+
+  deriveName: ->
+    if @platform == "ios"
+      if @price == 1.99
+        return "ios_yearly"
+      else if @price == 5.99
+        return "ios_unlimited"
+    else if @platform == "android"
+      if @price == 1.99
+          return "android_yearly"
+        else if @price == 5.99
+          return "android_unlimited"
+    "unknown"
 
 
 class PurchaseController
@@ -131,19 +153,19 @@ class PurchaseController
     for purchaseDatum in purchaseData
       continue if purchaseDatum.platform == null
 
-      purchase = new Purchase(purchaseDatum)
-      @$scope.purchases.push purchase
+      hour = new Hour(purchaseDatum)
+      @$scope.purchases.push hour
 
-      if purchase.product.name == "ios_yearly"
-        @$scope.ios_yearly += 1
-      else if purchase.product.name == "ios_unlimited"
-        @$scope.ios_unlimited += 1
-      else if purchase.product.name == "android_yearly"
-        @$scope.android_yearly += 1
-      else if purchase.product.name == "android_unlimited"
-        @$scope.android_unlimited += 1
+      if hour.productName == "ios_yearly"
+        @$scope.ios_yearly += hour.count
+      else if hour.productName == "ios_unlimited"
+        @$scope.ios_unlimited += hour.count
+      else if hour.productName == "android_yearly"
+        @$scope.android_yearly += hour.count
+      else if hour.productName == "android_unlimited"
+        @$scope.android_unlimited += hour.count
       else
-        alert "#{purchase.product.name} is an invalid product name"
+        alert "#{hour.productName} is an invalid product name"
 
     @$scope.purchaseCount = @$scope.purchases.length
 
@@ -154,14 +176,18 @@ class PurchaseController
     for productName in Product.productArray
       realData.push @yearOfWeekBuckets(productName)
 
-    for purchase in @$scope.purchases
-      date = purchase.date
+    for hour in @$scope.purchases
+      date = hour.hour
       properBucket = null
-      for bucket in realData[purchase.product.index]
+      for bucket in realData[Product.productArray.indexOf hour.productName]
         if date >= bucket.startDate and date < bucket.endDate
           properBucket = bucket
           continue
-      properBucket.purchases.push purchase
+
+      if properBucket == null
+        console.log realData[Product.productArray.indexOf hour.productName]
+        console.log date
+      properBucket.purchases.push hour
 
     # console.log realData
 
@@ -169,7 +195,10 @@ class PurchaseController
       i = 0
       for bucket in productArray
         bucket.x = i
-        bucket.y = bucket.purchases.length
+        total = 0
+        for hour in bucket.purchases
+          total += hour.count
+        bucket.y = total
         i++
 
     return realData

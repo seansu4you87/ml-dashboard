@@ -14,6 +14,36 @@ class Purchase < ActiveRecord::Base
 
   has_one :product, inverse_of: :purchases, foreign_key: 'app_store_id', primary_key: 'product_id'
 
+  def self.summarize
+    Tire.index 'hours' do
+      delete
+      create
+
+      purchases = Purchase.search({})
+      summary = {}
+      purchases.each do |p|
+        date = DateTime.strptime(p.modified)
+        hour = DateTime.new(date.year, date.month, date.day, date.hour)
+
+        key = "#{hour.to_s} #{p.platform} #{p.price} #{p.restored}"
+
+        if summary[key]
+          summary[key].count += 1
+        else
+          summary[key] = Hour.new(hour, p.platform, p.price, p.restored)
+          summary[key].count += 1
+        end
+      end
+
+      summary.each do |key, hour|
+        # puts hour
+        store hour
+      end
+
+      refresh
+    end
+  end
+
   def self.search(params)
     # tire.search(load: true) do
     tire.search(page: params[:page], per_page: 600 * 1000) do
