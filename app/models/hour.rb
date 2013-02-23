@@ -19,7 +19,7 @@ class Hour
 
   def to_indexed_json
     {
-      hour:     @hour,
+      hour:     @hour.to_s,
       platform: @platform,
       price:    @price,
       restored: @restored,
@@ -77,22 +77,37 @@ class Hour
     doc = Hour.get_max_purchase_id_doc
 
     Tire.index 'hours' do
-      remove doc.id if doc
+      if doc
+        remove doc.id
+        puts "\n"
+        puts "switching max_purchase_id #{doc.max_purchase_id} for #{max_purchase_id}"
+        puts "\n"
+      end
+
       store max_purchase_id: max_purchase_id
     end
   end
 
   def self.get_hour_doc(hour)
-    s = Tire.search 'hours' do
+    s = tire.search(per_page: 600 * 1000) do
       query do
-        term :hour, hour.hour.to_s
-        term :platform, hour.platform.to_s
-        term :price, hour.price.to_s
-        term :restored, hour.restored.to_s
+        boolean do
+          must { term :hour,     hour.hour.to_s }
+          must { term :platform, hour.platform } if hour.platform
+          must { term :price,    hour.price } if hour.price
+          must { term :restored, true } if hour.restored
+        end
       end
     end
 
-    s.results.to_a.first
+    s.results.each do |r|
+      if hour.price == r.price and hour.platform == r.platform and hour.hour.to_s == r.hour
+        return r
+      end
+    end
+
+    # s.results.each { |r| puts "#{r.hour.to_s}: #{r._score.to_s[0...8]} #{r.platform.to_s[0...3]}_#{r.price} #{r.count}" }
+    nil
   end
 
   def self.set_hour_doc(hour)
@@ -105,13 +120,18 @@ class Hour
     end
   end
 
+  def self.hour_from_purchase(purchase)
+    datetime = DateTime.new(purchase.modified.year, purchase.modified.month, purchase.modified.day, purchase.modified.hour)
+    Hour.new(datetime, purchase.platform, purchase.price, purchase.restored)
+  end
+
   def self.summarize
     Tire.index 'hours' do
 
       max_purchase_id = Hour.get_max_purchase_id
       puts "\n#{Time.now}: getting purchases with id > #{max_purchase_id}\n"
       
-      purchases = Purchase.where("id > ?", max_purchase_id).limit(10 * 1000)
+      purchases = Purchase.where("id > ?", max_purchase_id).limit(1 * 1000)
 
       if purchases.empty?
         puts "\n#{Time.now}: got 0 purchases\n"
@@ -137,11 +157,11 @@ class Hour
       puts "\n#{Time.now}: summarized!.  Now inserting into ElasticSearch\n"
 
       summary.each do |key, hour|
-        # if Hour.get_hour_doc(hour).nil?
+        if Hour.get_hour_doc(hour).nil?
           store hour
-        # else
-          # Hour.set_hour_doc(hour)
-        # end
+        else
+          Hour.set_hour_doc(hour)
+        end
       end
 
       Hour.set_max_purchase_id(max_purchase_id)
