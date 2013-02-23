@@ -131,7 +131,7 @@ class Hour
       max_purchase_id = Hour.get_max_purchase_id
       puts "\n#{Time.now}: getting purchases with id > #{max_purchase_id}\n"
       
-      purchases = Purchase.where("id > ?", max_purchase_id).limit(1 * 1000)
+      purchases = Purchase.where("id > ?", max_purchase_id).limit(10 * 1000)
 
       if purchases.empty?
         puts "\n#{Time.now}: got 0 purchases\n"
