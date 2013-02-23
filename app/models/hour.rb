@@ -1,5 +1,6 @@
-class Hour < ActiveRecord::Base
+class Hour
   include Tire::Model::Search
+  extend  ActiveModel::Naming
 
   attr_reader   :hour, :platform, :price, :restored
   attr_accessor :count

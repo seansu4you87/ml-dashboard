@@ -14,16 +14,37 @@ class Purchase < ActiveRecord::Base
 
   has_one :product, inverse_of: :purchases, foreign_key: 'app_store_id', primary_key: 'product_id'
 
+  default_scope includes(:product)
+
   def self.summarize
     Tire.index 'hours' do
-      delete
-      create
 
-      purchases = Purchase.search({})
+      s = Tire.search 'hours' do
+        query do
+          string 'max_purchase_id:*'
+        end
+      end
+
+      max_purchase_id_doc = s.results.first
+      max_purchase_id = 0
+      if max_purchase_id_doc
+        max_purchase_id = max_purchase_id_doc.max_purchase_id
+      end
+
+      puts "\n#{Time.now}: getting purchases with id > #{max_purchase_id}"
+      
+      purchases = Purchase.where("id > ?", max_purchase_id)
+
+      if purchases.empty?
+        puts "\n#{Time.now}: got 0 purchases"
+      else
+        puts "\n#{Time.now}: got #{purchases.count} purchases with ids between #{purchases.first.id} and #{purchases.last.id}"
+      end
+
       summary = {}
       purchases.each do |p|
-        date = DateTime.strptime(p.modified)
-        hour = DateTime.new(date.year, date.month, date.day, date.hour)
+        max_purchase_id = p.id if p.id > max_purchase_id
+        hour = DateTime.new(p.modified.year, p.modified.month, p.modified.day, p.modified.hour)
 
         key = "#{hour.to_s} #{p.platform} #{p.price} #{p.restored}"
 
@@ -35,10 +56,36 @@ class Purchase < ActiveRecord::Base
         end
       end
 
+      puts "\n#{Time.now}: summarized!"
+
       summary.each do |key, hour|
-        # puts hour
-        store hour
+        s = Tire.search 'hours' do
+          query do
+            term :hour, hour.hour.to_s
+            term :platform, hour.platform.to_s
+            term :price, hour.price.to_s
+            term :restored, hour.restored.to_s
+          end
+        end
+
+        if s.results.to_a.empty?
+          store hour
+        else
+          hour_doc = s.results.to_a.first
+          count = hour_doc.count
+          hour.count += count
+          remove hour_doc.id
+          store hour
+        end
+
       end
+
+      remove max_purchase_id_doc.id if max_purchase_id_doc
+      store max_purchase_id: max_purchase_id
+
+      puts "\n#{Time.now}: max_purchase_id: #{max_purchase_id}"
+
+      puts "\n#{Time.now}: hours summary stored in ElasticSearch!"
 
       refresh
     end

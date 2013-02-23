@@ -167,7 +167,10 @@ class PurchaseController
       else
         alert "#{hour.productName} is an invalid product name"
 
-    @$scope.purchaseCount = @$scope.purchases.length
+    @$scope.purchaseCount = @$scope.ios_yearly + 
+                            @$scope.ios_unlimited + 
+                            @$scope.android_yearly + 
+                            @$scope.android_unlimited
 
     
     # format data
