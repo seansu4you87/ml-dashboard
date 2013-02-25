@@ -54,6 +54,7 @@ MLDashboard.directive('mlYearGraph', ->
                 .append("div")
                 .attr("class", "popover fade right in")
                 .attr("id", "bar-popover")
+                .style("visibility", "hidden")
                 .style("top", "400px")
                 .style("left", "200px")
                 .style("display", "block")
@@ -77,14 +78,29 @@ MLDashboard.directive('mlYearGraph', ->
             .attr("class", "popover-content popover-revenue")
             .text("tip me")
 
-                # .attr("id", "tooltip")
-                # .style("position", "absolute")
-                # .style("z-index", "10")
-                # .style("visibility", "hidden")
+    hover = (d, i) ->
+      b = bucket(d, i)
+      hour = b.hours[0]
+
+      tip = d3.select("#bar-popover")
+              .style("visibility", "visible")
+              .style("top", (event.pageY - 80) + "px")
+              .style("left", (event.pageX) + "px")
+
+      niceDate = (date) -> "#{date.getMonth() + 1}/#{date.getDate()}"
+
+      tip.select(".popover-title").text("#{hour.platform} $#{hour.price}")
+      tip.select(".popover-time-range").text("#{niceDate(b.startDate)} - #{niceDate(b.endDate)}")
+      tip.select(".popover-units-sold").text("#{b.y} units sold")
+      tip.select(".popover-revenue").text("$#{hour.price * b.y} revenue")
+
+    noHover = -> d3.select("#bar-popover").style("visibility", "hidden")
 
     chart.selectAll("text.label")
       .data(data[0])
       .enter().append("text")
+        .on("mouseover", hover)
+        .on("mouseout", noHover)
         .attr("class", "label")
         .attr("x", (d, i) -> i * barWidth)
         .attr("y", height + 6)
@@ -92,7 +108,7 @@ MLDashboard.directive('mlYearGraph', ->
         .attr("dy", ".71em")
         .attr("text-anchor", "middle")
         .text((d, i) -> 
-          return i
+          # return i
           return if d.x % 4 != 0
           "#{d.startDate.getMonth() + 1}/#{d.startDate.getDate()}")
     
@@ -163,25 +179,8 @@ MLDashboard.directive('mlYearGraph', ->
                 .attr("height", barHeight)
 
       groups.selectAll("rect")
-            .on("mouseover", (d, i) ->
-              # console.log "hover hand! (#{d.product}, #{d.index}) => #{bucket(d, 0)}"
-              b = bucket(d, i)
-              hour = b.hours[0]
-              console.log b
-
-              tip = d3.select("#bar-popover")
-                      .style("visibility", "visible")
-                      .style("top", (event.pageY - 85) + "px")
-                      .style("left", (event.pageX + 5) + "px")
-
-              niceDate = (date) -> "#{date.getMonth() + 1}/#{date.getDate()}"
-
-              tip.select(".popover-title").text("#{hour.platform} $#{hour.price}")
-              tip.select(".popover-time-range").text("#{niceDate(b.startDate)} - #{niceDate(b.endDate)}")
-              tip.select(".popover-units-sold").text("#{b.y} units sold")
-              tip.select(".popover-revenue").text("$#{hour.price * b.y} revenue")
-            )
-            .on("mouseout", -> d3.select("#bar-popover").style("visibility", "hidden"))
+            .on("mouseover", hover)
+            .on("mouseout", noHover)
 
       scope.$watch 'grouped', (newVal, oldVal) ->
         return if newVal == oldVal
