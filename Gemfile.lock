@@ -58,6 +58,8 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.4.0)
+    d3-rails (0.0.5)
+      railties (>= 3.1)
     daemons (1.1.9)
     database_cleaner (0.9.1)
     devise (2.2.1)
@@ -210,6 +212,7 @@ DEPENDENCIES
   bootstrap-sass (>= 2.2.2.0)
   capybara (>= 2.0.1)
   coffee-rails (~> 3.2.1)
+  d3-rails
   database_cleaner (>= 0.9.1)
   devise
   email_spec (>= 1.4.0)

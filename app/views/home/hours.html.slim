@@ -1,0 +1,6 @@
+- index = 0
+- @hours.each do |h|
+  h "#{index}: #{h.id}"
+  - index += 1
+
+= will_paginate @hours

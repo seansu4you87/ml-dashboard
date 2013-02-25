@@ -8,7 +8,7 @@ class HomeController < ApplicationController
     # @stats << ProductsHelper.stats_from_products(Product.android_yearlies)
   end
 
-  def purchases
+  def hours
     # @purchases = Purchase.search(params)
     @hours = Hour.search(params)
   end

@@ -29,7 +29,7 @@ class Hour
 
   def self.search(params)
     # tire.search(load: true) do
-    tire.search(page: params[:page], per_page: 600 * 1000) do
+    tire.search(page: params[:page], per_page: 1000 * 1000) do
       query { string params[:q] } if params[:q].present?
       # query { string "android" }
       # query { all }
@@ -78,7 +78,7 @@ class Hour
 
     Tire.index 'hours' do
       if doc
-        remove doc.id
+        remove doc
         puts "\n"
         puts "switching max_purchase_id #{doc.max_purchase_id} for #{max_purchase_id}"
         puts "\n"
@@ -100,6 +100,8 @@ class Hour
       end
     end
 
+    # return s.results
+
     s.results.each do |r|
       if hour.price == r.price and hour.platform == r.platform and hour.hour.to_s == r.hour
         return r
@@ -115,7 +117,7 @@ class Hour
     hour.count += hour_doc.count
 
     Tire.index 'hours' do
-      remove hour_doc.id
+      remove hour_doc
       store hour
     end
   end
@@ -131,7 +133,7 @@ class Hour
       max_purchase_id = Hour.get_max_purchase_id
       puts "\n#{Time.now}: getting purchases with id > #{max_purchase_id}\n"
       
-      purchases = Purchase.where("id > ?", max_purchase_id).limit(10 * 1000)
+      purchases = Purchase.where("id > ?", max_purchase_id)#.limit(10 * 1000)
 
       if purchases.empty?
         puts "\n#{Time.now}: got 0 purchases\n"

@@ -1,43 +1,13 @@
-class Purchase
-  constructor: (json) ->
-    @product = new Product(json.platform, (Number)(json.price))
-    @version = json.version
-    @date = new Date(json.modified)
-
-
-
-class Product
-  @productArray = ["ios_yearly", "ios_unlimited", "android_yearly", "android_unlimited"]
-  
-  constructor: (platform, price) ->
-    @platform = platform
-    @price = (Number)(price)
-    @name = @deriveName()
-    @index = Product.productArray.indexOf @name
-
-  deriveName: ->
-    if @platform == "ios"
-      if @price == 1.99
-        return "ios_yearly"
-      else if @price == 5.99
-        return "ios_unlimited"
-    else if @platform == "android"
-      if @price == 1.99
-          return "android_yearly"
-        else if @price == 5.99
-          return "android_unlimited"
-    "unknown"
-
-
-
 class TimeBucket
   constructor: (startDate, endDate, product) ->
     @startDate = startDate
     @endDate = endDate
     @product = product
-    @purchases = []
+    @hours = []
 
 class Hour
+  @productArray = ["ios_yearly", "ios_unlimited", "android_yearly", "android_unlimited"]
+
   constructor: (json) ->
     @hour     = new Date(json.hour)
     @platform = json.platform
@@ -61,7 +31,7 @@ class Hour
     "unknown"
 
 
-class PurchaseController
+class HourController
   constructor: (@$scope, @$http) ->
     @$scope.success = "Waiting"
 
@@ -71,10 +41,10 @@ class PurchaseController
     @$scope.android_unlimited = 0
     
     @$scope.page = 1
-    @$scope.purchases = []
+    @$scope.hours = []
 
-    @$scope.endDate = new Date()
-    @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate())
+    @$scope.endDate = new Date() # Today
+    @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate()) # One Year Ago
     @$scope.bucketLength = 7 #days
 
     @$scope.iOSYearly = true
@@ -95,17 +65,17 @@ class PurchaseController
       @hideShowProduct(newVal, oldVal, "android_unlimited")
 
     @$scope.data = []
-    for productName in Product.productArray
+    for productName in Hour.productArray
       @$scope.data.push @yearOfWeekBuckets(productName)
 
     for productArray in @$scope.data
       i = 0
       for bucket in productArray
         bucket.x = i
-        bucket.y = bucket.purchases.length
+        bucket.y = bucket.hours.length
         i++
 
-    @getPurchaseData()
+    @getHourData()
 
   hideShowProduct: (newVal, oldVal, productName) ->
     return if newVal == oldVal
@@ -128,33 +98,33 @@ class PurchaseController
       .attr("y", (d) -> height - barHeight(d))
       .attr("height", barHeight)
 
-  getPurchaseData: (page = 1) ->
+  getHourData: (page = 1) ->
     # console.log "getting page #{page}"
     @$http(
       method: 'GET'
-      url:    "http://localhost:3000/purchases.json?page=#{page}"
+      url:    "http://localhost:3000/hours.json?page=#{page}"
     ).
     success((data) =>
-      # console.log "got purchase data! #{data.length} purchases from #{data[0].id} to #{data[data.length - 1].id}"
-      @$scope.data = @analyzePurchaseData(data)
+      # console.log "got hour data! #{data.length} hours from #{data[0].id} to #{data[data.length - 1].id}"
+      @$scope.data = @analyzeHourData(data)
       # console.log @$scope.data
       @$scope.success = "Yes"
 
       @$scope.page += 1
       if data.length and @$scope.page <= 1
-        @getPurchaseData(@$scope.page)
+        @getHourData(@$scope.page)
     ).
     error((data, status) ->
       @$scope.success = "No"
       @$scope.error = status
     )
 
-  analyzePurchaseData: (purchaseData) ->
-    for purchaseDatum in purchaseData
-      continue if purchaseDatum.platform == null
+  analyzeHourData: (hourData) ->
+    for hourDatum in hourData
+      continue if hourDatum.platform == null
 
-      hour = new Hour(purchaseDatum)
-      @$scope.purchases.push hour
+      hour = new Hour(hourDatum)
+      @$scope.hours.push hour
 
       if hour.productName == "ios_yearly"
         @$scope.ios_yearly += hour.count
@@ -167,30 +137,30 @@ class PurchaseController
       else
         alert "#{hour.productName} is an invalid product name"
 
-    @$scope.purchaseCount = @$scope.ios_yearly + 
-                            @$scope.ios_unlimited + 
-                            @$scope.android_yearly + 
-                            @$scope.android_unlimited
+    @$scope.hourCount = @$scope.ios_yearly + 
+                        @$scope.ios_unlimited + 
+                        @$scope.android_yearly + 
+                        @$scope.android_unlimited
 
     
     # format data
     # realData = @$scope.data
     realData = []
-    for productName in Product.productArray
+    for productName in Hour.productArray
       realData.push @yearOfWeekBuckets(productName)
 
-    for hour in @$scope.purchases
+    for hour in @$scope.hours
       date = hour.hour
       properBucket = null
-      for bucket in realData[Product.productArray.indexOf hour.productName]
+      for bucket in realData[Hour.productArray.indexOf hour.productName]
         if date >= bucket.startDate and date < bucket.endDate
           properBucket = bucket
           continue
 
       if properBucket == null
-        console.log realData[Product.productArray.indexOf hour.productName]
+        console.log realData[Hour.productArray.indexOf hour.productName]
         console.log date
-      properBucket.purchases.push hour
+      properBucket.hours.push hour
 
     # console.log realData
 
@@ -199,7 +169,7 @@ class PurchaseController
       for bucket in productArray
         bucket.x = i
         total = 0
-        for hour in bucket.purchases
+        for hour in bucket.hours
           total += hour.count
         bucket.y = total
         i++
@@ -223,4 +193,4 @@ class PurchaseController
     buckets
       
 
-@PurchaseController = PurchaseController
+@HourController = HourController

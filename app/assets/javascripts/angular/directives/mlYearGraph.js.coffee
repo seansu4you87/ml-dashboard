@@ -33,7 +33,7 @@ MLDashboard.directive('mlYearGraph', ->
     chart = d3.select(element[0])
               .append("svg")
                 .attr("width", width)
-                .attr("height", height + margin + 100)
+                .attr("height", height + margin + 150)
 
     groups = chart.selectAll("g.layer")
                 .data(placeholder)
@@ -49,6 +49,38 @@ MLDashboard.directive('mlYearGraph', ->
               .attr("y", height)
               .attr("width", barWidth * 0.95)
               .attr("height", 0)
+
+    popover = d3.select(element[0])
+                .append("div")
+                .attr("class", "popover fade right in")
+                .attr("id", "bar-popover")
+                .style("top", "400px")
+                .style("left", "200px")
+                .style("display", "block")
+    
+    popover.append("div")
+            .attr("class", "arrow")
+
+    popover.append("h3")
+            .attr("class", "popover-title")
+            .text("tip me")
+
+    popover.append("div")
+            .attr("class", "popover-content popover-time-range")
+            .text("tip me")
+
+    popover.append("div")
+            .attr("class", "popover-content popover-units-sold")
+            .text("tip me")
+
+    popover.append("div")
+            .attr("class", "popover-content popover-revenue")
+            .text("tip me")
+
+                # .attr("id", "tooltip")
+                # .style("position", "absolute")
+                # .style("z-index", "10")
+                # .style("visibility", "hidden")
 
     chart.selectAll("text.label")
       .data(data[0])
@@ -82,8 +114,8 @@ MLDashboard.directive('mlYearGraph', ->
       .data(data)
       .enter().append("text")
         .attr("class", "key")
-        .attr("x", (d, i) -> 155 * Math.floor(i/3) + 15)
-        .attr("y", (d, i) -> height  + 42 + 30 * (i%3))
+        .attr("x", (d, i) -> 155 * Math.floor(i/2) + 15)
+        .attr("y", (d, i) -> height  + 42 + 30 * (i%2))
         .attr("dx", barWidth)
         .attr("dy", ".71em")
         .attr("text-anchor", "left")
@@ -93,8 +125,8 @@ MLDashboard.directive('mlYearGraph', ->
       .data(data)
       .enter().append("rect")
         .attr("class", "swatch")
-        .attr("y", (d, i) -> height + 36 + 30 * (i%3))
-        .attr("x", (d, i) -> 155 * Math.floor(i/3))
+        .attr("y", (d, i) -> height + 36 + 30 * (i%2))
+        .attr("x", (d, i) -> 155 * Math.floor(i/2))
         .attr("width", 20)
         .attr("height", 20)
         .style("fill", (d, i) -> color(i / (n - 1)))
@@ -129,6 +161,27 @@ MLDashboard.directive('mlYearGraph', ->
                 .duration(500)
                 .attr("y", yGrouped)
                 .attr("height", barHeight)
+
+      groups.selectAll("rect")
+            .on("mouseover", (d, i) ->
+              # console.log "hover hand! (#{d.product}, #{d.index}) => #{bucket(d, 0)}"
+              b = bucket(d, i)
+              hour = b.hours[0]
+              console.log b
+
+              tip = d3.select("#bar-popover")
+                      .style("visibility", "visible")
+                      .style("top", (event.pageY - 85) + "px")
+                      .style("left", (event.pageX + 5) + "px")
+
+              niceDate = (date) -> "#{date.getMonth() + 1}/#{date.getDate()}"
+
+              tip.select(".popover-title").text("#{hour.platform} $#{hour.price}")
+              tip.select(".popover-time-range").text("#{niceDate(b.startDate)} - #{niceDate(b.endDate)}")
+              tip.select(".popover-units-sold").text("#{b.y} units sold")
+              tip.select(".popover-revenue").text("$#{hour.price * b.y} revenue")
+            )
+            .on("mouseout", -> d3.select("#bar-popover").style("visibility", "hidden"))
 
       scope.$watch 'grouped', (newVal, oldVal) ->
         return if newVal == oldVal
