@@ -14,6 +14,8 @@ class Purchase < ActiveRecord::Base
 
   has_one :product, inverse_of: :purchases, foreign_key: 'app_store_id', primary_key: 'product_id'
 
+  default_scope includes(:product)
+
   def self.search(params)
     # tire.search(load: true) do
     tire.search(page: params[:page], per_page: 600 * 1000) do

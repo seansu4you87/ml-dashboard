@@ -18,6 +18,7 @@ gem "oj"
 gem 'tire' # elasticsearch -f -D es.config=/usr/local/opt/elasticsearch/config/elasticsearch.yml
 gem 'will_paginate'
 gem 'slim'
+gem 'd3-rails'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'

@@ -13,9 +13,30 @@
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap
+//= require bootstrap-tooltip.js
 //= require angular.min
 //= require angular-resource.min
 // require angle-up
 //= require ./angular/mldashboard
 //= require_tree ./angular
 //= require_tree .
+
+//= require d3
+//= require d3-bootstrap
+
+$(document).ready(function(){
+    $("a").tooltip({title: "sheit up"});
+    $("a").tooltip("show")
+
+    setTimeout(function(){ 
+      $("rect").tooltip({title: "hello there"});
+
+      var tooltip = bootstrap.tooltip()
+        .placement(function() {
+          return this.getAttribute("data-placement");
+        });
+
+      d3.selectAll("rect").call(bootstrap.tooltip().placement("right"));
+
+    }, 5000);
+});
