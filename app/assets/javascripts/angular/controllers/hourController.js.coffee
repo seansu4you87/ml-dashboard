@@ -85,28 +85,12 @@ class HourController
     @getHourData()
 
   setDataOnScope: ->
-    console.log "resetting data on scope!"
-    data = []
+    data = [@yearOfWeekBuckets(), @yearOfWeekBuckets(), @yearOfWeekBuckets(), @yearOfWeekBuckets()]
     
-    if @$scope.iosYearlySelected
-      data.push @$scope.iosYearlyData 
-    else
-      data.push @yearOfWeekBuckets()
-
-    if @$scope.iosUnlimitedSelected
-      data.push @$scope.iosUnlimitedData 
-    else
-      data.push @yearOfWeekBuckets()
-
-    if @$scope.androidYearlySelected
-      data.push @$scope.androidYearlyData
-    else
-      data.push @yearOfWeekBuckets()
-
-    if @$scope.androidUnlimitedSelected
-      data.push @$scope.androidUnlimitedData 
-    else
-      data.push @yearOfWeekBuckets()
+    data[0] = @$scope.iosYearlyData           if @$scope.iosYearlySelected
+    data[1] = @$scope.iosUnlimitedData        if @$scope.iosUnlimitedSelected
+    data[2] = @$scope.androidYearlyData       if @$scope.androidYearlySelected
+    data[3] = @$scope.androidUnlimitedData    if @$scope.androidUnlimitedSelected
 
     @$scope.data = data
 
@@ -145,6 +129,7 @@ class HourController
           continue
 
       if properBucket == null
+        console.log "IMPROPER BUCKET! FIX THIS!"
         console.log allData[Hour.productArray.indexOf hour.productName]
         console.log date
       properBucket.hours.push hour
