@@ -14,10 +14,11 @@ MLDashboard.directive('mlYearGraph', ->
     n = scope.val.length
     m = scope.val[0].length
     data = d3.layout.stack()(scope.val)
-
     y = d3.scale.linear()
           .domain([0, 30000])
           .range([0, height])
+
+    # Creating Placeholder Data
 
     i = 0
     placeholderData = []
@@ -29,6 +30,8 @@ MLDashboard.directive('mlYearGraph', ->
         j++
       placeholderData.push groupPlaceholderData
       i++
+
+    # Making Graphs and Stuffs
 
     chart = d3.select(element[0])
               .append("svg")
@@ -50,34 +53,6 @@ MLDashboard.directive('mlYearGraph', ->
               .attr("width", barWidth * 0.95)
               .attr("height", 0)
 
-    popover = d3.select(element[0])
-                .append("div")
-                .attr("class", "popover fade right in")
-                .attr("id", "bar-popover")
-                .style("visibility", "hidden")
-                .style("top", "400px")
-                .style("left", "200px")
-                .style("display", "block")
-    
-    popover.append("div")
-            .attr("class", "arrow")
-
-    popover.append("h3")
-            .attr("class", "popover-title")
-            .text("tip me")
-
-    popover.append("div")
-            .attr("class", "popover-content popover-time-range")
-            .text("tip me")
-
-    popover.append("div")
-            .attr("class", "popover-content popover-units-sold")
-            .text("tip me")
-
-    popover.append("div")
-            .attr("class", "popover-content popover-revenue")
-            .text("tip me")
-
     chart.selectAll("text.label")
       .data(data[0])
       .enter().append("text")
@@ -90,7 +65,6 @@ MLDashboard.directive('mlYearGraph', ->
         .attr("dy", ".71em")
         .attr("text-anchor", "middle")
         .text((d, i) -> 
-          # return i
           return if d.x % 4 != 0
           "#{d.startDate.getMonth() + 1}/#{d.startDate.getDate()}")
     
@@ -128,6 +102,36 @@ MLDashboard.directive('mlYearGraph', ->
         .attr("width", 20)
         .attr("height", 20)
         .style("fill", (d, i) -> color(i / (n - 1)))
+
+    # Popover Stuffs
+
+    popover = d3.select(element[0])
+                .append("div")
+                .attr("class", "popover fade right in")
+                .attr("id", "bar-popover")
+                .style("visibility", "hidden")
+                .style("top", "400px")
+                .style("left", "200px")
+                .style("display", "block")
+    
+    popover.append("div")
+              .attr("class", "arrow")
+
+    popover.append("h3")
+            .attr("class", "popover-title")
+            .text("tip me")
+
+    popover.append("div")
+            .attr("class", "popover-content popover-time-range")
+            .text("tip me")
+
+    popover.append("div")
+            .attr("class", "popover-content popover-units-sold")
+            .text("tip me")
+
+    popover.append("div")
+            .attr("class", "popover-content popover-revenue")
+            .text("tip me")
 
     # Helper Functions
 
