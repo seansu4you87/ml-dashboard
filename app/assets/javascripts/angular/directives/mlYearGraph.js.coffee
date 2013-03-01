@@ -20,14 +20,14 @@ MLDashboard.directive('mlYearGraph', ->
           .range([0, height])
 
     i = 0
-    placeholder = []
+    placeholderData = []
     for productArray in scope.val
-      groupPlaceholder = []
+      groupPlaceholderData = []
       j = 0
       for bucket in productArray
-        groupPlaceholder.push { product: i, index: j }
+        groupPlaceholderData.push { product: i, index: j }
         j++
-      placeholder.push groupPlaceholder
+      placeholderData.push groupPlaceholderData
       i++
 
     chart = d3.select(element[0])
@@ -36,7 +36,7 @@ MLDashboard.directive('mlYearGraph', ->
                 .attr("height", height + margin + 150)
 
     groups = chart.selectAll("g.layer")
-                .data(placeholder)
+                .data(placeholderData)
                 .enter().append("g")
                   .attr("class", "layer")
                   .attr("id", (d, i) -> data[i][0].product)
@@ -77,31 +77,6 @@ MLDashboard.directive('mlYearGraph', ->
     popover.append("div")
             .attr("class", "popover-content popover-revenue")
             .text("tip me")
-
-    hover = (d, i) ->
-      b = bucket(d, i)
-      return unless b
-      hour = b.hours[0]
-
-      tip = d3.select("#bar-popover")
-              .style("top", (event.pageY - 80) + "px")
-              .style("left", (event.pageX) + "px")
-
-      setTimeout(=>
-        tip.style("visibility", "visible")
-      , 250)
-
-      niceDate = (date) -> "#{date.getMonth() + 1}/#{date.getDate()}"
-
-      tip.select(".popover-title").text("#{hour.platform} $#{hour.price}")
-      tip.select(".popover-time-range").text("#{niceDate(b.startDate)} - #{niceDate(b.endDate)}")
-      tip.select(".popover-units-sold").text("#{b.y} units sold")
-      tip.select(".popover-revenue").text("$#{hour.price * b.y} revenue")
-
-    noHover = -> 
-      setTimeout(=>
-        d3.select("#bar-popover").style("visibility", "hidden")
-      , 250)
 
     chart.selectAll("text.label")
       .data(data[0])
@@ -154,28 +129,55 @@ MLDashboard.directive('mlYearGraph', ->
         .attr("height", 20)
         .style("fill", (d, i) -> color(i / (n - 1)))
 
+    # Helper Functions
+
+    bucket = (d, i) -> 
+      return null if data[d.product] == undefined
+      data[d.product][d.index]
+
+    barHeight = (d, i) -> 
+      b = bucket(d, i)
+      return 0 unless b
+      y(b.y)
+
+    yGrouped = (d, i) ->
+      yStart = 0
+      for index in [0...d.product] by 1
+        yStart += data[index][d.index].y if data[index]
+      
+      b = bucket(d, i)
+      return 0 if b == null
+      height - y(bucket(d, i).y + yStart)
+
+    hover = (d, i) ->
+      b = bucket(d, i)
+      return unless b
+      hour = b.hours[0]
+
+      tip = d3.select("#bar-popover")
+              .style("top", (event.pageY - 80) + "px")
+              .style("left", (event.pageX) + "px")
+
+      setTimeout(=>
+        tip.style("visibility", "visible")
+      , 250)
+
+      niceDate = (date) -> "#{date.getMonth() + 1}/#{date.getDate()}"
+
+      tip.select(".popover-title").text("#{hour.platform} $#{hour.price}")
+      tip.select(".popover-time-range").text("#{niceDate(b.startDate)} - #{niceDate(b.endDate)}")
+      tip.select(".popover-units-sold").text("#{b.y} units sold")
+      tip.select(".popover-revenue").text("$#{hour.price * b.y} revenue")
+
+    noHover = -> 
+      setTimeout(=>
+        d3.select("#bar-popover").style("visibility", "hidden")
+      , 250)
+
     scope.$watch 'val', (newVal, oldVal) ->
       return unless newVal
 
       data = newVal
-
-      bucket = (d, i) -> 
-        return null if data[d.product] == undefined
-        data[d.product][d.index]
-
-      barHeight = (d, i) -> 
-        b = bucket(d, i)
-        return 0 unless b
-        y(b.y)
-
-      yGrouped = (d, i) ->
-        yStart = 0
-        for index in [0...d.product] by 1
-          yStart += data[index][d.index].y if data[index]
-        
-        b = bucket(d, i)
-        return 0 if b == null
-        height - y(bucket(d, i).y + yStart)
 
       groups = chart.selectAll("g.layer")
 
@@ -196,37 +198,37 @@ MLDashboard.directive('mlYearGraph', ->
             .on("mouseover", hover)
             .on("mouseout", noHover)
 
-      scope.$watch 'grouped', (newVal, oldVal) ->
-        return if newVal == oldVal
+    scope.$watch 'grouped', (newVal, oldVal) ->
+      return if newVal == oldVal
 
-        if newVal
-          end = ->
-            d3.select(this)
-              .transition()
-                .duration(500)
-                .attr("y", (d, i) -> height - barHeight(d, i))
-
-          chart.selectAll("g.layer").selectAll("rect")
+      if newVal
+        end = ->
+          d3.select(this)
             .transition()
               .duration(500)
-              .delay((d, i) -> (i % m) * 10)
-              .attr("x", (d, i) -> i * barWidth + d.product * barWidth / n)
-              .attr("width", barWidth * 0.95 / n)
-              .each("end", end)
-        else
-          end = ->
-            d3.select(this)
-              .transition()
-                .duration(500)
-                .attr("x", (d) -> d.index * barWidth)
-                .attr("width", barWidth * 0.95)
+              .attr("y", (d, i) -> height - barHeight(d, i))
 
-          chart.selectAll("g.layer").selectAll("rect")
+        chart.selectAll("g.layer").selectAll("rect")
+          .transition()
+            .duration(500)
+            .delay((d, i) -> (i % m) * 10)
+            .attr("x", (d, i) -> i * barWidth + d.product * barWidth / n)
+            .attr("width", barWidth * 0.95 / n)
+            .each("end", end)
+      else
+        end = ->
+          d3.select(this)
             .transition()
               .duration(500)
-              .delay((d, i) -> (i % m) * 10)
-              .attr("y", yGrouped)
-              .each("end", end)
+              .attr("x", (d) -> d.index * barWidth)
+              .attr("width", barWidth * 0.95)
+
+        chart.selectAll("g.layer").selectAll("rect")
+          .transition()
+            .duration(500)
+            .delay((d, i) -> (i % m) * 10)
+            .attr("y", yGrouped)
+            .each("end", end)
 
 
 )
