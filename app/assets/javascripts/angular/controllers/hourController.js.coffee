@@ -34,40 +34,57 @@ class Hour
 class HourController
   constructor: (@$scope, @$http) ->
     @$scope.success = "Waiting"
-
-    @$scope.ios_yearly = 0
-    @$scope.ios_unlimited = 0
-    @$scope.android_yearly = 0
-    @$scope.android_unlimited = 0
     
-    @$scope.page = 1
     @$scope.hours = []
 
     @$scope.endDate = new Date() # Today
     @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate()) # One Year Ago
     @$scope.bucketLength = 7 #days
 
-    @$scope.iOSYearly = true
-    @$scope.iOSUnlimited = true
-    @$scope.androidYearly = true
-    @$scope.androidUnlimited = true
+    @$scope.iosYearly = 0
+    @$scope.iosUnlimited = 0
+    @$scope.androidYearly = 0
+    @$scope.androidUnlimited = 0
 
-    @$scope.$watch 'iOSYearly', (newVal, oldVal) =>
-      @hideShowProduct(newVal, oldVal, "ios_yearly")
+    @$scope.iosYearlySelected = true
+    @$scope.iosUnlimitedSelected = true
+    @$scope.androidYearlySelected = true
+    @$scope.androidUnlimitedSelected = true
 
-    @$scope.$watch 'iOSUnlimited', (newVal, oldVal) =>
-      @hideShowProduct(newVal, oldVal, "ios_unlimited")
+    @$scope.$watch 'iosYearlyData', =>
+      @setDataOnScope()
 
-    @$scope.$watch 'androidYearly', (newVal, oldVal) =>
-      @hideShowProduct(newVal, oldVal, "android_yearly")
+    @$scope.$watch 'iosUnlimitedData', =>
+      @setDataOnScope()
 
-    @$scope.$watch 'androidUnlimited', (newVal, oldVal) =>
-      @hideShowProduct(newVal, oldVal, "android_unlimited")
+    @$scope.$watch 'androidYearlyData', =>
+      @setDataOnScope()
 
+    @$scope.$watch 'androidUnlimitedData', =>
+      @setDataOnScope()
+
+    @$scope.$watch 'iosYearlySelected', (newVal, oldVal) =>
+      @setDataOnScope()
+      # @hideShowProduct(newVal, oldVal, "ios_yearly")
+
+    @$scope.$watch 'iosUnlimitedSelected', (newVal, oldVal) =>
+      @setDataOnScope()
+      # @hideShowProduct(newVal, oldVal, "ios_unlimited")
+
+    @$scope.$watch 'androidYearlySelected', (newVal, oldVal) =>
+      @setDataOnScope()
+      # @hideShowProduct(newVal, oldVal, "android_yearly")
+
+    @$scope.$watch 'androidUnlimitedSelected', (newVal, oldVal) =>
+      @setDataOnScope()
+      # @hideShowProduct(newVal, oldVal, "android_unlimited")
+
+    # push empty buckets into data
     @$scope.data = []
     for productName in Hour.productArray
       @$scope.data.push @yearOfWeekBuckets(productName)
 
+    # set x positions of buckets
     for productArray in @$scope.data
       i = 0
       for bucket in productArray
@@ -76,6 +93,32 @@ class HourController
         i++
 
     @getHourData()
+
+  setDataOnScope: ->
+    console.log "resetting data on scope!"
+    data = []
+    if @$scope.iosYearlySelected
+      data.push @$scope.iosYearlyData 
+    else
+      data.push @yearOfWeekBuckets()
+
+    if @$scope.iosUnlimitedSelected
+      data.push @$scope.iosUnlimitedData 
+    else
+      data.push @yearOfWeekBuckets()
+
+    if @$scope.androidYearlySelected
+      data.push @$scope.androidYearlyData
+    else
+      data.push @yearOfWeekBuckets()
+
+    if @$scope.androidUnlimitedSelected
+      data.push @$scope.androidUnlimitedData 
+    else
+      data.push @yearOfWeekBuckets()
+      
+    @$scope.data = data
+    console.log @$scope.data
 
   hideShowProduct: (newVal, oldVal, productName) ->
     return if newVal == oldVal
@@ -87,7 +130,7 @@ class HourController
 
     barHeight = (d) =>
       if newVal 
-        console.log y(@$scope.data[d.product][d.index].y)
+        # console.log y(@$scope.data[d.product][d.index].y)
         return y(@$scope.data[d.product][d.index].y)
       else
         return 0
@@ -99,20 +142,13 @@ class HourController
       .attr("height", barHeight)
 
   getHourData: (page = 1) ->
-    # console.log "getting page #{page}"
     @$http(
       method: 'GET'
       url:    "http://localhost:3000/hours.json?page=#{page}"
     ).
     success((data) =>
-      # console.log "got hour data! #{data.length} hours from #{data[0].id} to #{data[data.length - 1].id}"
-      @$scope.data = @analyzeHourData(data)
-      # console.log @$scope.data
+      @analyzeHourData(data)
       @$scope.success = "Yes"
-
-      @$scope.page += 1
-      if data.length and @$scope.page <= 1
-        @getHourData(@$scope.page)
     ).
     error((data, status) ->
       @$scope.success = "No"
@@ -127,44 +163,40 @@ class HourController
       @$scope.hours.push hour
 
       if hour.productName == "ios_yearly"
-        @$scope.ios_yearly += hour.count
+        @$scope.iosYearly += hour.count
       else if hour.productName == "ios_unlimited"
-        @$scope.ios_unlimited += hour.count
+        @$scope.iosUnlimited += hour.count
       else if hour.productName == "android_yearly"
-        @$scope.android_yearly += hour.count
+        @$scope.androidYearly += hour.count
       else if hour.productName == "android_unlimited"
-        @$scope.android_unlimited += hour.count
+        @$scope.androidUnlimited += hour.count
       else
         alert "#{hour.productName} is an invalid product name"
 
-    @$scope.hourCount = @$scope.ios_yearly + 
-                        @$scope.ios_unlimited + 
-                        @$scope.android_yearly + 
-                        @$scope.android_unlimited
+    @$scope.totalPurchases =  @$scope.iosYearly + 
+                              @$scope.iosUnlimited + 
+                              @$scope.androidYearly + 
+                              @$scope.androidUnlimited
 
     
-    # format data
-    # realData = @$scope.data
-    realData = []
+    allData = []
     for productName in Hour.productArray
-      realData.push @yearOfWeekBuckets(productName)
+      allData.push @yearOfWeekBuckets(productName)
 
     for hour in @$scope.hours
       date = hour.hour
       properBucket = null
-      for bucket in realData[Hour.productArray.indexOf hour.productName]
+      for bucket in allData[Hour.productArray.indexOf hour.productName]
         if date >= bucket.startDate and date < bucket.endDate
           properBucket = bucket
           continue
 
       if properBucket == null
-        console.log realData[Hour.productArray.indexOf hour.productName]
+        console.log allData[Hour.productArray.indexOf hour.productName]
         console.log date
       properBucket.hours.push hour
 
-    # console.log realData
-
-    for productArray in realData
+    for productArray in allData
       i = 0
       for bucket in productArray
         bucket.x = i
@@ -174,7 +206,10 @@ class HourController
         bucket.y = total
         i++
 
-    return realData
+    @$scope.iosYearlyData = allData[Hour.productArray.indexOf "ios_yearly"]
+    @$scope.iosUnlimitedData = allData[Hour.productArray.indexOf "ios_unlimited"]
+    @$scope.androidYearlyData = allData[Hour.productArray.indexOf "android_yearly"]
+    @$scope.androidUnlimitedData = allData[Hour.productArray.indexOf "android_unlimited"]
 
   yearOfWeekBuckets: (product = null) ->
     endDate = new Date(@$scope.endDate)
@@ -190,6 +225,13 @@ class HourController
       buckets.push bucket
 
     createBucket() while currentDate <= endDate
+    buckets
+
+    i = 0
+    for bucket in buckets
+      bucket.x = i
+      bucket.y = bucket.hours.length
+      i++
     buckets
       
 

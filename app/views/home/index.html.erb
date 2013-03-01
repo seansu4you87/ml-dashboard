@@ -3,7 +3,7 @@
   <h1>Got Data: {{success}}</h1>
   <p>Errors: {{error}}</p>
   <p>Pages Loaded: {{page}}</p>
-  <p>Purchases: {{hourCount}}</p>
+  <p>Purchases: {{totalPurchases}}</p>
 
   <table border="1">
     <tr>
@@ -14,28 +14,28 @@
     </tr>
     <tr>
       <th>Yearly</th>
-      <td>{{android_yearly}}</td>
-      <td>{{ios_yearly}}</td>
-      <td>{{android_yearly + ios_yearly}}</td>
+      <td>{{androidYearly}}</td>
+      <td>{{iosYearly}}</td>
+      <td>{{androidYearly + iosYearly}}</td>
     </tr>
     <tr>
       <th>Unlimited</th>
-      <td>{{android_unlimited}}</td>
-      <td>{{ios_unlimited}}</td>
-      <td>{{android_unlimited + ios_unlimited}}</td>
+      <td>{{androidUnlimited}}</td>
+      <td>{{iosUnlimited}}</td>
+      <td>{{androidUnlimited + iosUnlimited}}</td>
     </tr>
     <tr>
       <th>Total</th>
-      <td>{{android_yearly + android_unlimited}}</td>
-      <td>{{ios_yearly + ios_unlimited}}</td>
-      <td>{{ios_yearly + ios_unlimited + android_yearly + android_unlimited}}</td>
+      <td>{{androidYearly + androidUnlimited}}</td>
+      <td>{{iosYearly + iosUnlimited}}</td>
+      <td>{{iosYearly + iosUnlimited + androidYearly + androidUnlimited}}</td>
   </table>
 
   <input type="checkbox" ng-model="grouped"> Grouped<br>
-  <input type="checkbox" ng-model="iOSYearly"> iOS Yearly<br>
-  <input type="checkbox" ng-model="iOSUnlimited"> iOS Unlimited<br>
-  <input type="checkbox" ng-model="androidYearly"> Android Yearly<br>
-  <input type="checkbox" ng-model="androidUnlimited"> Android Unlimited<br>
+  <input type="checkbox" ng-model="iosYearlySelected"> iOS Yearly<br>
+  <input type="checkbox" ng-model="iosUnlimitedSelected"> iOS Unlimited<br>
+  <input type="checkbox" ng-model="androidYearlySelected"> Android Yearly<br>
+  <input type="checkbox" ng-model="androidUnlimitedSelected"> Android Unlimited<br>
 
   <br>
   <br>

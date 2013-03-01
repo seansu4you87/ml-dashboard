@@ -80,12 +80,16 @@ MLDashboard.directive('mlYearGraph', ->
 
     hover = (d, i) ->
       b = bucket(d, i)
+      return unless b
       hour = b.hours[0]
 
       tip = d3.select("#bar-popover")
-              .style("visibility", "visible")
               .style("top", (event.pageY - 80) + "px")
               .style("left", (event.pageX) + "px")
+
+      setTimeout(=>
+        tip.style("visibility", "visible")
+      , 250)
 
       niceDate = (date) -> "#{date.getMonth() + 1}/#{date.getDate()}"
 
@@ -94,7 +98,10 @@ MLDashboard.directive('mlYearGraph', ->
       tip.select(".popover-units-sold").text("#{b.y} units sold")
       tip.select(".popover-revenue").text("$#{hour.price * b.y} revenue")
 
-    noHover = -> d3.select("#bar-popover").style("visibility", "hidden")
+    noHover = -> 
+      setTimeout(=>
+        d3.select("#bar-popover").style("visibility", "hidden")
+      , 250)
 
     chart.selectAll("text.label")
       .data(data[0])
@@ -152,15 +159,22 @@ MLDashboard.directive('mlYearGraph', ->
 
       data = newVal
 
-      bucket = (d, i) -> data[d.product][d.index]
+      bucket = (d, i) -> 
+        return null if data[d.product] == undefined
+        data[d.product][d.index]
 
-      barHeight = (d, i) -> y(bucket(d, i).y)
+      barHeight = (d, i) -> 
+        b = bucket(d, i)
+        return 0 unless b
+        y(b.y)
 
       yGrouped = (d, i) ->
         yStart = 0
         for index in [0...d.product] by 1
-          yStart += data[index][d.index].y
+          yStart += data[index][d.index].y if data[index]
         
+        b = bucket(d, i)
+        return 0 if b == null
         height - y(bucket(d, i).y + yStart)
 
       groups = chart.selectAll("g.layer")
