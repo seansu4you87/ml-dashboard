@@ -95,6 +95,7 @@ GEM
     json (1.7.6)
     launchy (2.1.2)
       addressable (~> 2.3)
+    libv8 (3.11.8.13)
     libwebsocket (0.1.7.1)
       addressable
       websocket
@@ -139,6 +140,7 @@ GEM
     rake (10.0.3)
     rdoc (3.12)
       json (~> 1.4)
+    ref (1.0.2)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     rspec-core (2.12.2)
@@ -176,6 +178,9 @@ GEM
       tilt (~> 1.1, != 1.3.0)
     sqlite3 (1.3.6)
     temple (0.5.5)
+    therubyracer (0.11.4)
+      libv8 (~> 3.11.8.12)
+      ref
     thin (1.5.0)
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
@@ -216,6 +221,7 @@ DEPENDENCIES
   database_cleaner (>= 0.9.1)
   devise
   email_spec (>= 1.4.0)
+  execjs
   factory_girl_rails (>= 4.1.0)
   figaro (>= 0.5.0)
   hirb
@@ -232,6 +238,7 @@ DEPENDENCIES
   simple_form (>= 2.0.4)
   slim
   sqlite3
+  therubyracer
   thin
   tire
   uglifier (>= 1.0.3)
