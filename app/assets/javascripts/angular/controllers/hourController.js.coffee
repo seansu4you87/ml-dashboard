@@ -15,9 +15,6 @@ class Hour
     @restored = json.restored
     @count    = json.count
 
-    if @platform == undefined
-      console.log json
-
     @productName = @deriveName()
 
   deriveName: ->
@@ -113,6 +110,10 @@ class HourController
       continue if hourDatum.platform == null
 
       hour = new Hour(hourDatum)
+
+      # if hour.platform == undefined
+      #   console.log hourDatum
+
       @$scope.hours.push hour
       @$scope.iosYearly         += hour.count if hour.productName == "ios_yearly"
       @$scope.iosUnlimited      += hour.count if hour.productName == "ios_unlimited"
