@@ -15,6 +15,8 @@ class Hour
     @restored = json.restored
     @count    = json.count
 
+    @json     = json
+
     @productName = @deriveName()
 
   deriveName: ->
@@ -129,6 +131,8 @@ class HourController
       properBucket = null
       
       console.log "index: #{Hour.productArray.indexOf hour.productName}"
+      console.log hour
+      console.log hour.json
       for bucket in allData[Hour.productArray.indexOf hour.productName]
         if date >= bucket.startDate and date < bucket.endDate
           properBucket = bucket
