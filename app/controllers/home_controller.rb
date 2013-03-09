@@ -10,7 +10,7 @@ class HomeController < ApplicationController
 
   def hours
     # @purchases = Purchase.search(params)
-    @hours = Hour.search(params)
+    @hours = [Hour.search(params).first]
   end
 
 end
