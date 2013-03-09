@@ -15,6 +15,11 @@ class Hour
     @restored = json.restored
     @count    = json.count
 
+    if @platform == null or @platform == undefined
+      console.group()
+      console.log json
+      console.groupEnd()
+
     @productName = @deriveName()
 
   deriveName: ->
@@ -95,7 +100,7 @@ class HourController
     @$scope.data = data
 
   getHourData: (page = 1) ->
-    @$http.get("http://localhost:3000/hours.json?page=#{page}")
+    @$http.get("http://10.177.134.211:3001/hours.json?page=#{page}")
     .success((data) =>
       @analyzeHourData(data)
       @$scope.success = "Yes"
