@@ -123,6 +123,8 @@ class HourController
     for hour in @$scope.hours
       date = hour.hour
       properBucket = null
+      
+      console.log "index: #{Hour.productArray.indexOf hour.productName}"
       for bucket in allData[Hour.productArray.indexOf hour.productName]
         if date >= bucket.startDate and date < bucket.endDate
           properBucket = bucket
