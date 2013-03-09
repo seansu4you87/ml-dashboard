@@ -122,6 +122,8 @@ class HourController
       @$scope.androidYearly     += hour.count if hour.productName == "android_yearly"
       @$scope.androidUnlimited  += hour.count if hour.productName == "android_unlimited"
         
+    console.log "#{@$scope.hours.length} hours"
+
     allData = []
     for productName in Hour.productArray
       allData.push @yearOfWeekBuckets(productName)
