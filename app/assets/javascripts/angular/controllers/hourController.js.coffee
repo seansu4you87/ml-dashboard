@@ -15,10 +15,8 @@ class Hour
     @restored = json.restored
     @count    = json.count
 
-    if @platform == null or @platform == undefined
-      console.group()
+    if @platform == undefined
       console.log json
-      console.groupEnd()
 
     @productName = @deriveName()
 
