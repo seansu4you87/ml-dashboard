@@ -98,6 +98,7 @@ class HourController
 
   getHourData: (page = 1) ->
     @$http.get("http://10.177.134.211:3001/hours.json?page=#{page}")
+    # @$http.get("http://localhost:3000/hours.json?page=#{page}")
     .success((data) =>
       @analyzeHourData(data)
       @$scope.success = "Yes"
@@ -110,6 +111,7 @@ class HourController
   analyzeHourData: (hourData) ->
     for hourDatum in hourData
       continue if hourDatum.platform == null
+      continue if hourDatum == "["
 
       hour = new Hour(hourDatum)
 
