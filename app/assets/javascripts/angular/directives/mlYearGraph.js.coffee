@@ -5,6 +5,10 @@ MLDashboard.directive('mlYearGraph', ->
   height = 500 - 0.5 - margin
   color = d3.interpolateRgb("#f77", "#77f")
 
+  yMin = 0
+  yMax = 30000
+  yInterval = 5000
+
   restrict: 'E'
   terminal: true
   scope:
@@ -15,7 +19,7 @@ MLDashboard.directive('mlYearGraph', ->
     m = scope.val[0].length
     data = d3.layout.stack()(scope.val)
     y = d3.scale.linear()
-          .domain([0, 30000])
+          .domain([0, yMax])
           .range([0, height])
 
     # Creating Placeholder Data
@@ -38,20 +42,34 @@ MLDashboard.directive('mlYearGraph', ->
                 .attr("width", width)
                 .attr("height", height + margin + 150)
 
-    groups = chart.selectAll("g.layer")
-                .data(placeholderData)
-                .enter().append("g")
-                  .attr("class", "layer")
-                  .attr("id", (d, i) -> data[i][0].product)
-                  .style("fill", (d, i) -> color(i / (n - 1)))
 
-    bars = groups.selectAll("rect")
-              .data((d) -> d)
-              .enter().append("rect")
-              .attr("x", (d, i) -> i * barWidth)
-              .attr("y", height)
-              .attr("width", barWidth * 0.95)
-              .attr("height", 0)
+    # x-axis
+
+    currentDivider = 0
+    dividerCount = yMax / yInterval
+    while currentDivider < dividerCount
+      axisHeight = height - (currentDivider * height / dividerCount)
+      chart.append("line")
+        .attr("x1", 0)
+        .attr("x2", width)
+        .attr("y1", axisHeight)
+        .attr("y2", axisHeight)
+        .style("stroke", "#aaa")
+
+      currentDivider++
+
+    # trying to put units next to lines
+    # chart
+    #   .append("text")
+    #   .attr("x", 0)
+    #   .attr("y", 450)
+    #   .attr("dx", 10)
+    #   .attr("dy", ".71em")
+    #   .attr("text-anchor", "middle")
+    #   .attr("class", "label")
+    #   .text("hello")
+
+    # dates for x-axis
 
     chart.selectAll("text.label")
       .data(data[0])
@@ -67,14 +85,24 @@ MLDashboard.directive('mlYearGraph', ->
         .text((d, i) -> 
           return if d.x % 4 != 0
           "#{d.startDate.getMonth() + 1}/#{d.startDate.getDate()}")
-    
-    chart.append("line")
-      .attr("x1", 0)
-      .attr("x2", width)
-      .attr("y1", height)
-      .attr("y2", height)
-      .style("stroke", "#000")
 
+    # holders for the bars
+    groups = chart.selectAll("g.layer")
+                .data(placeholderData)
+                .enter().append("g")
+                  .attr("class", "layer")
+                  .attr("id", (d, i) -> data[i][0].product)
+                  .style("fill", (d, i) -> color(i / (n - 1)))
+
+    bars = groups.selectAll("rect")
+              .data((d) -> d)
+              .enter().append("rect")
+              .attr("x", (d, i) -> i * barWidth)
+              .attr("y", height)
+              .attr("width", barWidth * 0.95)
+              .attr("height", 0)
+
+    # y-axis
     chart.append("line")
       .attr("x1", 0)
       .attr("x2", 0)

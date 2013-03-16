@@ -97,8 +97,8 @@ class HourController
     @$scope.data = data
 
   getHourData: (page = 1) ->
-    @$http.get("http://10.177.134.211:3001/hours.json?page=#{page}")
-    # @$http.get("http://localhost:3000/hours.json?page=#{page}")
+    # @$http.get("http://10.177.134.211:3001/hours.json?page=#{page}")
+    @$http.get("http://localhost:3000/hours.json?page=#{page}")
     .success((data) =>
       @analyzeHourData(data)
       @$scope.success = "Yes"
@@ -124,7 +124,7 @@ class HourController
       @$scope.androidYearly     += hour.count if hour.productName == "android_yearly"
       @$scope.androidUnlimited  += hour.count if hour.productName == "android_unlimited"
         
-    console.log "#{@$scope.hours.length} hours"
+    # console.log "#{@$scope.hours.length} hours"
 
     allData = []
     for productName in Hour.productArray
@@ -134,9 +134,9 @@ class HourController
       date = hour.hour
       properBucket = null
       
-      console.log "index: #{Hour.productArray.indexOf hour.productName}"
-      console.log hour
-      console.log hour.json
+      # console.log "index: #{Hour.productArray.indexOf hour.productName}"
+      # console.log hour
+      # console.log hour.json
       for bucket in allData[Hour.productArray.indexOf hour.productName]
         if date >= bucket.startDate and date < bucket.endDate
           properBucket = bucket
