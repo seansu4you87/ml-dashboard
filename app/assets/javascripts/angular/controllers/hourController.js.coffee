@@ -43,6 +43,8 @@ class HourController
     @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate()) # One Year Ago
     @$scope.bucketLength = 7 #days
 
+    @$scope.monies = false
+
     @$scope.iosYearly = 0
     @$scope.iosUnlimited = 0
     @$scope.androidYearly = 0
@@ -52,6 +54,13 @@ class HourController
     @$scope.iosUnlimitedSelected = true
     @$scope.androidYearlySelected = true
     @$scope.androidUnlimitedSelected = true
+
+    @$scope.$watch 'monies', =>
+      @analyzeHourData(@$scope.hourData) if @$scope.hourData
+      if @$scope.monies
+        @$scope.yMax = 100000 
+      else
+        @$scope.yMax = 30000
 
     @$scope.$watch 'iosYearlyData', =>
       @setDataOnScope()
@@ -109,20 +118,22 @@ class HourController
     )
 
   analyzeHourData: (hourData) ->
+    @$scope.hourData = hourData
+
+    hours = []
+
     for hourDatum in hourData
       continue if hourDatum.platform == null
-      continue if hourDatum == "["
 
       hour = new Hour(hourDatum)
 
-      # if hour.platform == undefined
-      #   console.log hourDatum
-
-      @$scope.hours.push hour
+      hours.push hour
       @$scope.iosYearly         += hour.count if hour.productName == "ios_yearly"
       @$scope.iosUnlimited      += hour.count if hour.productName == "ios_unlimited"
       @$scope.androidYearly     += hour.count if hour.productName == "android_yearly"
       @$scope.androidUnlimited  += hour.count if hour.productName == "android_unlimited"
+
+    @$scope.hours = hours
         
     # console.log "#{@$scope.hours.length} hours"
 
@@ -154,7 +165,12 @@ class HourController
         bucket.x = i
         total = 0
         for hour in bucket.hours
-          total += hour.count
+          if @$scope.monies
+            total += (hour.count * hour.price)
+          else
+            total += hour.count
+
+
         bucket.y = total
         i++
 

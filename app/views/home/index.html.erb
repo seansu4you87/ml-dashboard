@@ -29,6 +29,7 @@
       <td>{{iosYearly + iosUnlimited + androidYearly + androidUnlimited}}</td>
   </table>
 
+  <input type="checkbox" ng-model="monies"> Monies<br>
   <input type="checkbox" ng-model="grouped"> Grouped<br>
   <input type="checkbox" ng-model="iosYearlySelected"> iOS Yearly<br>
   <input type="checkbox" ng-model="iosUnlimitedSelected"> iOS Unlimited<br>
@@ -38,6 +39,6 @@
   <br>
   <br>
 
-  30,000
-  <ml-year-graph val="data" grouped="grouped"></ml-year-graph>
+  {{yMax}}
+  <ml-year-graph val="data" grouped="grouped" ymax="yMax"></ml-year-graph>
 </div>
