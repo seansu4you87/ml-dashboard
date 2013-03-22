@@ -5,16 +5,16 @@ MLDashboard.directive('mlYearGraph', ->
   height = 500 - 0.5 - margin
   color = d3.interpolateRgb("#f77", "#77f")
 
-  yMin = 0
-  yMax = 30000
-  yInterval = 5000
-
   restrict: 'E'
   terminal: true
   scope:
     val: "="
     grouped: "="
   link: (scope, element, attrs) ->
+    yMin = 0
+    yMax = 100000 #scope.ymax
+    yInterval = 20000
+
     n = scope.val.length
     m = scope.val[0].length
     data = d3.layout.stack()(scope.val)

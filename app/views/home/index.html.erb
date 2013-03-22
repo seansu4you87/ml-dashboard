@@ -1,9 +1,8 @@
 <div ng-controller="HourController">
-  <h1>Got Data: {{success}}</h1>
-  <p>Errors: {{error}}</p>
-  <p>Purchases: {{iosYearly + iosUnlimited + androidYearly + androidUnlimited}}</p>
+  <h1 ng-show=false>Got Data: {{success}}</h1>
+  <p ng-show=error>Errors: {{error}}</p>
 
-  <table border="1">
+  <table class="table table-bordered table-striped" border="1">
     <tr>
       <td></td>
       <th>Android</th>
@@ -12,32 +11,43 @@
     </tr>
     <tr>
       <th>Yearly</th>
-      <td>{{androidYearly}}</td>
-      <td>{{iosYearly}}</td>
-      <td>{{androidYearly + iosYearly}}</td>
+      <td><input type="checkbox" ng-model="androidYearlySelected"> {{androidYearlyViewValue}}</td>
+      <td><input type="checkbox" ng-model="iosYearlySelected"> {{iosYearlyViewValue}}</td>
+      <td>{{yearlyTotalViewValue}}</td>
     </tr>
     <tr>
       <th>Unlimited</th>
-      <td>{{androidUnlimited}}</td>
-      <td>{{iosUnlimited}}</td>
-      <td>{{androidUnlimited + iosUnlimited}}</td>
+      <td><input type="checkbox" ng-model="androidUnlimitedSelected"> {{androidUnlimitedViewValue}}</td>
+      <td><input type="checkbox" ng-model="iosUnlimitedSelected"> {{iosUnlimitedViewValue}}</td>
+      <td>{{unlimitedTotalViewValue}}</td>
     </tr>
     <tr>
       <th>Total</th>
-      <td>{{androidYearly + androidUnlimited}}</td>
-      <td>{{iosYearly + iosUnlimited}}</td>
-      <td>{{iosYearly + iosUnlimited + androidYearly + androidUnlimited}}</td>
+      <td>{{androidTotalViewValue}}</td>
+      <td>{{iosTotalViewValue}}</td>
+      <td>{{totalViewValue}}</td>
   </table>
 
-  <input type="checkbox" ng-model="grouped"> Grouped<br>
-  <input type="checkbox" ng-model="iosYearlySelected"> iOS Yearly<br>
-  <input type="checkbox" ng-model="iosUnlimitedSelected"> iOS Unlimited<br>
-  <input type="checkbox" ng-model="androidYearlySelected"> Android Yearly<br>
-  <input type="checkbox" ng-model="androidUnlimitedSelected"> Android Unlimited<br>
+  <div class="btn-group" data-toggle="buttons-radio">
+    <button type="button" class="btn" ng-class="{active: !grouped}" ng-click="grouped = false">Stacked</button>
+    <button type="button" class="btn" ng-class="{active: grouped}" ng-click="grouped = true">Grouped</button>
+  </div>
+
+  <div class="btn-group" data-toggle="buttons-radio">
+    <button type="button" class="btn" ng-class="{active: monies}" ng-click="monies = true">Revenue</button>
+    <button type="button" class="btn" ng-class="{active: !monies}" ng-click="monies = false">Count</button>
+  </div>
+
+  <!-- <input type="checkbox" ng-model="monies"> Monies<br> -->
+  <!-- <input type="checkbox" ng-model="grouped"> Grouped<br> -->
+  <!-- <input type="checkbox" ng-model="iosYearlySelected"> iOS Yearly<br> -->
+  <!-- <input type="checkbox" ng-model="iosUnlimitedSelected"> iOS Unlimited<br> -->
+  <!-- <input type="checkbox" ng-model="androidYearlySelected"> Android Yearly<br> -->
+  <!-- <input type="checkbox" ng-model="androidUnlimitedSelected"> Android Unlimited<br> -->
 
   <br>
   <br>
 
-  30,000
-  <ml-year-graph val="data" grouped="grouped"></ml-year-graph>
+  {{yMax}}
+  <ml-year-graph val="data" grouped="grouped" ymax="yMax"></ml-year-graph>
 </div>

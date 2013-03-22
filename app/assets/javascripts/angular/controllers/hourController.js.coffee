@@ -43,6 +43,8 @@ class HourController
     @$scope.startDate = new Date(@$scope.endDate.getFullYear() - 1, @$scope.endDate.getMonth(), @$scope.endDate.getDate()) # One Year Ago
     @$scope.bucketLength = 7 #days
 
+    @$scope.monies = false
+
     @$scope.iosYearly = 0
     @$scope.iosUnlimited = 0
     @$scope.androidYearly = 0
@@ -52,6 +54,34 @@ class HourController
     @$scope.iosUnlimitedSelected = true
     @$scope.androidYearlySelected = true
     @$scope.androidUnlimitedSelected = true
+
+    @$scope.$watch 'monies', =>
+      @analyzeHourData(@$scope.hourData) if @$scope.hourData
+      if @$scope.monies
+        @$scope.yMax = "$100,000"
+        @$scope.iosYearlyViewValue = accounting.formatMoney(@$scope.iosYearly * 1.99)
+        @$scope.iosUnlimitedViewValue = accounting.formatMoney(@$scope.iosUnlimited * 5.99)
+        @$scope.androidYearlyViewValue = accounting.formatMoney(@$scope.androidYearly * 1.99)
+        @$scope.androidUnlimitedViewValue = accounting.formatMoney(@$scope.androidUnlimited * 5.99)
+        
+        @$scope.iosTotalViewValue = accounting.formatMoney((@$scope.iosYearly * 1.99) + (@$scope.iosUnlimited * 5.99))
+        @$scope.androidTotalViewValue = accounting.formatMoney((@$scope.androidYearly * 1.99) + (@$scope.androidUnlimited * 5.99))
+        @$scope.yearlyTotalViewValue = accounting.formatMoney((@$scope.iosYearly + @$scope.androidYearly) * 1.99)
+        @$scope.unlimitedTotalViewValue = accounting.formatMoney((@$scope.iosUnlimited + @$scope.androidUnlimited) * 5.99)
+        @$scope.totalViewValue = accounting.formatMoney((@$scope.iosYearly + @$scope.androidYearly) * 1.99 + (@$scope.iosUnlimited + @$scope.androidUnlimited) * 5.99)
+
+      else
+        @$scope.yMax = "100,000 units"
+        @$scope.iosYearlyViewValue = accounting.formatNumber(@$scope.iosYearly)
+        @$scope.iosUnlimitedViewValue = accounting.formatNumber(@$scope.iosUnlimited)
+        @$scope.androidYearlyViewValue = accounting.formatNumber(@$scope.androidYearly)
+        @$scope.androidUnlimitedViewValue = accounting.formatNumber(@$scope.androidUnlimited)
+        
+        @$scope.iosTotalViewValue = accounting.formatNumber((@$scope.iosYearly) + (@$scope.iosUnlimited))
+        @$scope.androidTotalViewValue = accounting.formatNumber((@$scope.androidYearly) + (@$scope.androidUnlimited))
+        @$scope.yearlyTotalViewValue = accounting.formatNumber((@$scope.iosYearly + @$scope.androidYearly))
+        @$scope.unlimitedTotalViewValue = accounting.formatNumber((@$scope.iosUnlimited + @$scope.androidUnlimited))
+        @$scope.totalViewValue = accounting.formatNumber((@$scope.iosYearly + @$scope.androidYearly) + (@$scope.iosUnlimited + @$scope.androidUnlimited))
 
     @$scope.$watch 'iosYearlyData', =>
       @setDataOnScope()
@@ -102,6 +132,7 @@ class HourController
     .success((data) =>
       @analyzeHourData(data)
       @$scope.success = "Yes"
+      @$scope.monies = true
     )
     .error((data, status) ->
       @$scope.success = "No"
@@ -109,20 +140,26 @@ class HourController
     )
 
   analyzeHourData: (hourData) ->
+    @$scope.hourData = hourData
+
+    hours = []
+    @$scope.iosYearly = 0
+    @$scope.iosUnlimited = 0
+    @$scope.androidYearly = 0
+    @$scope.androidUnlimited = 0
+
     for hourDatum in hourData
       continue if hourDatum.platform == null
-      continue if hourDatum == "["
 
       hour = new Hour(hourDatum)
 
-      # if hour.platform == undefined
-      #   console.log hourDatum
-
-      @$scope.hours.push hour
+      hours.push hour
       @$scope.iosYearly         += hour.count if hour.productName == "ios_yearly"
       @$scope.iosUnlimited      += hour.count if hour.productName == "ios_unlimited"
       @$scope.androidYearly     += hour.count if hour.productName == "android_yearly"
       @$scope.androidUnlimited  += hour.count if hour.productName == "android_unlimited"
+
+    @$scope.hours = hours
         
     # console.log "#{@$scope.hours.length} hours"
 
@@ -152,10 +189,19 @@ class HourController
       i = 0
       for bucket in productArray
         bucket.x = i
+        count = 0
+        revenue = 0
         total = 0
         for hour in bucket.hours
-          total += hour.count
-        bucket.y = total
+          count += hour.count
+          revenue += (hour.count * hour.price)
+
+        bucket.count = count
+        bucket.revenue = revenue
+        if @$scope.monies
+          bucket.y = revenue
+        else
+          bucket.y = count
         i++
 
     @$scope.iosYearlyData         = allData[Hour.productArray.indexOf "ios_yearly"]

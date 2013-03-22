@@ -24,19 +24,21 @@
 //= require d3
 //= require d3-bootstrap
 
-$(document).ready(function(){
-    $("a").tooltip({title: "sheit up"});
-    $("a").tooltip("show")
+//= require accounting
 
-    setTimeout(function(){ 
-      $("rect").tooltip({title: "hello there"});
+// $(document).ready(function(){
+//     $("a").tooltip({title: "sheit up"});
+//     $("a").tooltip("show")
 
-      var tooltip = bootstrap.tooltip()
-        .placement(function() {
-          return this.getAttribute("data-placement");
-        });
+//     setTimeout(function(){ 
+//       $("rect").tooltip({title: "hello there"});
 
-      d3.selectAll("rect").call(bootstrap.tooltip().placement("right"));
+//       var tooltip = bootstrap.tooltip()
+//         .placement(function() {
+//           return this.getAttribute("data-placement");
+//         });
 
-    }, 5000);
-});
+//       d3.selectAll("rect").call(bootstrap.tooltip().placement("right"));
+
+//     }, 5000);
+// });
