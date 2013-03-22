@@ -12,8 +12,8 @@ MLDashboard.directive('mlYearGraph', ->
     grouped: "="
   link: (scope, element, attrs) ->
     yMin = 0
-    yMax = 30000 #scope.ymax
-    yInterval = 5000
+    yMax = 100000 #scope.ymax
+    yInterval = 20000
 
     n = scope.val.length
     m = scope.val[0].length
